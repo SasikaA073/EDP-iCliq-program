@@ -1,4 +1,7 @@
 # iCliq - EDP Project
+ble-mouse has the code to connect to a PC/phone and control using button
+button.h header should be in the same folder for code to work. (for button debounce)
+vibrator_pwm can be used to up the vibrator
 
 ### Functionalities
 
