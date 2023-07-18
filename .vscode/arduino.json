@@ -1,0 +1,6 @@
+{
+    "configuration": "CPUFreq=240,UploadSpeed=921600,DebugLevel=none,EraseFlash=none",
+    "board": "esp32:esp32:magicbit",
+    "port": "COM3",
+    "sketch": "test\\led_timer_btn\\led_timer_btn.ino"
+}
