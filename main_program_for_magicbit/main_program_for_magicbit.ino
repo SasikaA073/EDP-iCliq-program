@@ -11,13 +11,24 @@ const uint8_t rightButtonPin = 34; // Replace 12 with the GPIO pin number to whi
 const uint8_t leftButtonPin = 32;
 const uint8_t okButtonPin = 35;
 
+const int SHORT_PRESS_TIME = 1000; // 1000 milliseconds
+const int LONG_PRESS_TIME  = 1000; // 1000 milliseconds
+
 ezButton rightButton(rightButtonPin, INPUT_PULLUP); // Create an instance of the ezButton class
 ezButton leftButton(leftButtonPin, INPUT_PULLUP);
 ezButton okButton(okButtonPin, INPUT_PULLUP);
 
 uint8_t time_duration = 3;
 
+// To identify modes of the device
 bool isCharging = false;
+bool isChange_time_duration = false;
+
+unsigned long okButton_pressedTime  = 0;
+unsigned long okButton_releasedTime = 0;
+bool is_okButton_Pressing = false;
+bool is_okButton_LongDetected = false;
+
 
 // function to write text on the OLED screen
 void setup()
@@ -92,39 +103,98 @@ void loop()
   }
   else
   {
-
     leftButton.loop(); // Call the loop method to update the button state
-    rightButton.loop();
-    displayArrowKey(64, 8, 56, 16, 72, 16, true);
-    delay(10);
-    display.setCursor(56, 24);
-    display.print(time_duration);
-    delay(10);
-    displayArrowKey(64, 8, 56, 16, 72, 16, false);
-    display.display();
-    delay(10);
-    // changeRGBcolor(0,50,50,100);
+      rightButton.loop();
+      okButton.loop();
 
-    if (leftButton.isPressed())
+      detect_okButton();
+    if (isChange_time_duration = true)
     {
-      Serial.println("left Button Pressed!");
-      if (time_duration > 0)
+      
+
+      displayArrowKey(64, 8, 56, 16, 72, 16, true);
+      delay(10);
+      display.setCursor(56, 24);
+      display.print(time_duration);
+      delay(10);
+      displayArrowKey(64, 8, 56, 16, 72, 16, false);
+      display.display();
+      delay(10);
+      // changeRGBcolor(0,50,50,100);
+
+      if (leftButton.isPressed())
       {
-        time_duration -= 1;
-        // changeRGBcolor(127,0,0,500);
-      }
-      // Do something in response to the button press
-    }
-    if (rightButton.isPressed())
-    {
-      Serial.println("right Button Pressed!");
-      if (time_duration < 30)
-      {
+        Serial.println("left Button Pressed!");
+        if (time_duration > 0)
+        {
+          time_duration -= 1;
+          // changeRGBcolor(127,0,0,500);
+        }
         // Do something in response to the button press
-        time_duration += 1;
-        // changeRGBcolor(0,127,0,500);
+      }
+      if (rightButton.isPressed())
+      {
+        Serial.println("right Button Pressed!");
+        if (time_duration < 30)
+        {
+          // Do something in response to the button press
+          time_duration += 1;
+          // changeRGBcolor(0,127,0,500);
+        }
       }
     }
+
+    else{
+      display.setCursor(56, 24);
+      display.print(time_duration);
+      delay(10);
+      display.display();
+      delay(10);
+
+    }
+   
     display.clearDisplay();
   }
+}
+
+void detect_okButton(){
+   // short press, long press
+    if (okButton.isPressed())
+    {
+      okButton_pressedTime = millis();
+      is_okButton_Pressing = true;
+      is_okButton_LongDetected = false;
+    }
+
+    if (okButton.isReleased())
+    {
+      is_okButton_Pressing = false;
+      okButton_releasedTime = millis();
+
+      long okButton_pressDuration = okButton_releasedTime - okButton_pressedTime;
+
+      if (okButton_pressDuration < SHORT_PRESS_TIME)
+        Serial.println("A short press in okButton detected");
+        display.setCursor(0,0);
+        display.print("A short press is detected.");
+        display.display();
+        delay(10);
+    }
+
+    if (is_okButton_Pressing == true && is_okButton_LongDetected == false)
+    {
+      long okButton_pressDuration = millis() - okButton_pressedTime;
+
+      if (okButton_pressDuration > LONG_PRESS_TIME)
+      {
+        Serial.println("A long press in OkButton detected");
+        is_okButton_LongDetected = true;
+        display.setCursor(0,0);
+        display.print("A long press is detected.");
+        display.display();
+        delay(10);
+        
+        
+      }
+    }
 }
