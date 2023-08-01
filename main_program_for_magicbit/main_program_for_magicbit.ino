@@ -17,7 +17,7 @@ ezButton okButton(okButtonPin, INPUT_PULLUP);
 
 uint8_t time_duration = 3;
 
-
+bool isCharging = false;
 
 // function to write text on the OLED screen
 void setup()
@@ -47,11 +47,11 @@ void setup()
       ;
   }
 
-  display.setTextSize(2);
+  display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
 
   // (2000); // Logo for two seconds
-  for (int j = 0; j < 3;j++)
+  for (int j = 0; j < 1; j++)
   {
     animate_hexagon_loading();
   }
@@ -64,46 +64,67 @@ void setup()
   displayBatteryPercentage(batteryLevelPin);
 
   display.clearDisplay();
+  display.display();
+  // (2000); // Logo for two seconds
+  for (int j = 0; j < 1; j++)
+  {
+    animate_android_loading();
+  }
+
   Serial.println("# Setup is done.");
   Serial.println(" ");
   // delay(3000);
   delay(300);
+  display.clearDisplay();
+  display.display();
+  display.setTextSize(2);
 }
 
 void loop()
 {
 
-  leftButton.loop(); // Call the loop method to update the button state
-  rightButton.loop();
-  displayArrowKey(64, 8, 56, 16, 72, 16, true);
-  delay(10);
-  display.setCursor(56, 24);
-  display.print(time_duration);
-  delay(10);
-  displayArrowKey(64, 8, 56, 16, 72, 16, false);
-  display.display();
-  delay(10);
-  // changeRGBcolor(0,50,50,100);
+  if (isCharging == true)
+  {
+    display.clearDisplay();
+    display.drawBitmap(0, 0, battery_charging, 128, 64, 1);
+    display.display();
+    delay(10);
+  }
+  else
+  {
 
-  if (leftButton.isPressed())
-  {
-    Serial.println("left Button Pressed!");
-    if (time_duration > 0)
+    leftButton.loop(); // Call the loop method to update the button state
+    rightButton.loop();
+    displayArrowKey(64, 8, 56, 16, 72, 16, true);
+    delay(10);
+    display.setCursor(56, 24);
+    display.print(time_duration);
+    delay(10);
+    displayArrowKey(64, 8, 56, 16, 72, 16, false);
+    display.display();
+    delay(10);
+    // changeRGBcolor(0,50,50,100);
+
+    if (leftButton.isPressed())
     {
-      time_duration -= 1;
-      // changeRGBcolor(127,0,0,500);
-    }
-    // Do something in response to the button press
-  }
-  if (rightButton.isPressed())
-  {
-    Serial.println("right Button Pressed!");
-    if (time_duration < 30)
-    {
+      Serial.println("left Button Pressed!");
+      if (time_duration > 0)
+      {
+        time_duration -= 1;
+        // changeRGBcolor(127,0,0,500);
+      }
       // Do something in response to the button press
-      time_duration += 1;
-      // changeRGBcolor(0,127,0,500);
     }
+    if (rightButton.isPressed())
+    {
+      Serial.println("right Button Pressed!");
+      if (time_duration < 30)
+      {
+        // Do something in response to the button press
+        time_duration += 1;
+        // changeRGBcolor(0,127,0,500);
+      }
+    }
+    display.clearDisplay();
   }
-  display.clearDisplay();
 }

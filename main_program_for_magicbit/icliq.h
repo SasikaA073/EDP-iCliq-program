@@ -4,6 +4,7 @@
 #include <string.h>
 #include "loading_animation.h"
 #include "hexagon_animation.h"
+#include "battery.h"
 
 const uint8_t SCREEN_WIDTH = 128;
 const uint8_t SCREEN_HEIGHT = 64;
@@ -104,20 +105,47 @@ void displayBatteryPercentage(uint8_t batteryLevelPin)
 {
     // Change the battery_level data type to unit8_t if necessary
     int battery_level = analogRead(batteryLevelPin);
-    int battery_percentage = battery_level * 100 / 4096;
+    float battery_percentage = battery_level * 100 / 4096;
 
     // Print the text starting from the top-left corner (0,0)
+    display.clearDisplay();
 
-    display.setCursor(0, 0);
-    display.print("Battery Level : ");
-    display.print(battery_level);
-    delay(10);
-    display.print("\nBattery Percenrage ");
+    // delete the below line ***************************************************************************IJLJIOOUOIOIUOIOIIO
+    battery_percentage = 78.0;
+
+    if (battery_percentage <= 25.0)
+    {
+        display.drawBitmap(0, 0, battery_1, 128, 64, 1);
+    }
+    else if (battery_percentage > 25.0 && battery_percentage <= 50.0)
+    {
+        display.drawBitmap(0, 0, battery_2, 128, 64, 1);
+    }
+    else if (battery_percentage > 50.0 && battery_percentage <= 75.0)
+    {
+        display.drawBitmap(0, 0, battery_3, 128, 64, 1);
+    }
+    else if (battery_percentage > 75.0 && battery_percentage <= 100.0)
+    {
+        display.drawBitmap(0, 0, battery_4, 128, 64, 1);
+    }
+    display.setCursor(50, 48);
     display.print(battery_percentage);
-    display.println(" %");
-    // Update the OLED display
+    display.print(" %");
+    delay(10);
     display.display();
     delay(10);
+
+    // display.setCursor(0, 0);
+    // display.print("Battery Level : ");
+    // display.print(battery_level);
+    // delay(10);
+    // display.print("\nBattery Percenrage ");
+    // display.print(battery_percentage);
+    // display.println(" %");
+    // // Update the OLED display
+    // display.display();
+    // delay(10);
 
     Serial.print("Battery Level : ");
     Serial.println(battery_level);
@@ -126,9 +154,9 @@ void displayBatteryPercentage(uint8_t batteryLevelPin)
     Serial.println(" %");
 
     delay(2000);
-    display.clearDisplay();
+    // display.clearDisplay();
     Serial.println("# Battery Percentage Dispalyed.");
-    display.display();
+    // display.display();
     delay(10);
 }
 
@@ -223,5 +251,6 @@ void animate_hexagon_loading()
         display.display();
         delay(10);
     }
-
 }
+
+// A function to show an image in OLED
