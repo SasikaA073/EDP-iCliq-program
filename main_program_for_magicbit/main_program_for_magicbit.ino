@@ -186,7 +186,7 @@ void loop()
       }
     }
 
-    else
+    else if (timeSetModeOn == false)
     {
       display.setCursor(56, 24);
       display.print(time_duration);
