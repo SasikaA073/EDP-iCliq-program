@@ -17,6 +17,8 @@ ezButton okButton(okButtonPin, INPUT_PULLUP);
 
 uint8_t time_duration = 3;
 
+
+
 // function to write text on the OLED screen
 void setup()
 {
@@ -51,8 +53,9 @@ void setup()
   // (2000); // Logo for two seconds
   for (int j = 0; j < 3;j++)
   {
-    animate_android_loading();
+    animate_hexagon_loading();
   }
+
   // delay(2000);
 
   display.clearDisplay();
