@@ -1,0 +1,6 @@
+{
+    "arduino.enableUSBDetection": true,
+    "arduino.path": "D:\\Program Files\\Arduino\\arduino-cli",
+    "arduino.useArduinoCli": true,
+    "C_Cpp.errorSquiggles": "enabled"
+}
