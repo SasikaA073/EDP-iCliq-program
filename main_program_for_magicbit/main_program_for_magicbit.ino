@@ -3,6 +3,7 @@
 // #include "button.h"
 #include "icliq.h"
 #include "ezButton.h"
+#include <BleMouse.h>
 
 const uint8_t batteryLevelPin = 17;
 // Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
@@ -42,6 +43,8 @@ void setup()
 
   okButton.setDebounceTime(50);
   okButton.setCountMode(COUNT_FALLING);
+
+  bleMouse.begin();
 
   // Initialize leds
 
@@ -93,6 +96,7 @@ void setup()
 void loop()
 {
 
+  
   if (isCharging == true)
   {
     display.clearDisplay();
@@ -105,6 +109,8 @@ void loop()
     leftButton.loop(); // Call the loop method to update the button state
     rightButton.loop();
     okButton.loop();
+
+      if(bleMouse.isConnected()) {}
 
     // ---------------------------------------------------- Configuration for Ok Button ----------------------------------------------------------------------
     // short press, long press
@@ -166,7 +172,7 @@ void loop()
 
       if (leftButton.isPressed())
       {
-        Serial.println("left Button Pressed!");
+        Serial.println("left Button Pressed! - timeSetMode On");
         if (time_duration > 0)
         {
           time_duration -= 1;
@@ -176,7 +182,7 @@ void loop()
       }
       if (rightButton.isPressed())
       {
-        Serial.println("right Button Pressed!");
+        Serial.println("right Button Pressed! - timeSetMode On");
         if (time_duration < 30)
         {
           // Do something in response to the button press
@@ -186,13 +192,28 @@ void loop()
       }
     }
 
-    else if (timeSetModeOn == false)
+    else if (timeSetModeOn == false) 
     {
       display.setCursor(56, 24);
       display.print(time_duration);
       delay(10);
       display.display();
       delay(10);
+
+      if (leftButton.isPressed())
+      {
+        Serial.println("left Button Pressed! - timeSetMode Off");
+        digitalWrite(laserPin, HIGH);
+      }
+
+      if (leftButton.isPressed())
+      {
+        Serial.println("left Button Pressed! - timeSetMode Off");
+        digitalWrite(laserPin, LOW);
+        // Do something in response to the button press
+      }
+
+      
     }
 
     display.clearDisplay();

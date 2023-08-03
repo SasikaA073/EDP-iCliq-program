@@ -5,6 +5,11 @@
 #include "ezButton.h"
 
 const uint8_t batteryLevelPin = 17;
+const uint8_t laserPin = 18;
+
+const uint8_t redPin = 14;
+const uint8_t greenPin = 12;
+const uint8_t bluePin = 13;
 // Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 const uint8_t rightButtonPin = 25; // Replace 12 with the GPIO pin number to which your button is connected
@@ -42,6 +47,14 @@ void setup()
 
   okButton.setDebounceTime(50);
   okButton.setCountMode(COUNT_FALLING);
+
+  // Initialize RGB Leds
+  pinMode(redPin , OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+
+  pinMode(laserPin, OUTPUT);
+  
 
   // Initialize leds
 
@@ -193,6 +206,21 @@ void loop()
       delay(10);
       display.display();
       delay(10);
+
+      
+      if (rightButton.isPressed())
+      {
+        Serial.println("left Button Pressed! - timeSetMode Off");
+        digitalWrite(laserPin, HIGH);
+      }
+
+      if (leftButton.isPressed())
+      {
+        Serial.println("left Button Pressed! - timeSetMode Off");
+        digitalWrite(laserPin, LOW);
+        // Do something in response to the button press
+      }
+
     }
 
     display.clearDisplay();

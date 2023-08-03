@@ -1,5 +1,6 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <BleMouse.h>
 #include <Wire.h>
 #include <string.h>
 #include "loading_animation.h"
@@ -18,6 +19,8 @@ const uint8_t BledPin = 13;
 #define LASOR_PIN 18
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+BleMouse bleMouse;
 
 // The bitmap code related to the logo
 static const uint8_t logo_HEX_array[1024] = {

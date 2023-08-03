@@ -1,0 +1,24 @@
+okButtonsCount = 0
+
+if okButton.pressed():
+    okButtonsCount += 1
+
+if okButtonsCount %4 == 0:
+    print("You have pressed the OK button 4 times")
+    run the program for slides change
+
+    if rightButton.longPress detected:
+        start Laser
+    if leftButton.longPress detected:
+        Switch off Laser
+    
+```
+elif okButtonsCount %4 == 1: 
+    doSomething() first timeChange
+
+elif okButtonsCount %4 == 2: 
+    doSomething() second timeChange
+
+elif okButtonsCount %4 == 3: 
+    doSomething() thirdTimeChange
+
