@@ -1,5 +1,7 @@
 okButtonsCount = 0
 
+main loop():{
+
 if okButton.pressed():
     okButtonsCount += 1
 
@@ -12,7 +14,7 @@ if okButtonsCount %4 == 0:
     if leftButton.longPress detected:
         Switch off Laser
     
-```
+
 elif okButtonsCount %4 == 1: 
     doSomething() first timeChange
 
@@ -22,3 +24,15 @@ elif okButtonsCount %4 == 2:
 elif okButtonsCount %4 == 3: 
     doSomething() thirdTimeChange
 
+if okButtonLongPress detected:
+
+    start countdowning
+
+    run the program for slides change
+
+    if rightButton.longPress detected:
+        start Laser
+    if leftButton.longPress detected:
+        Switch off Laser
+
+}
