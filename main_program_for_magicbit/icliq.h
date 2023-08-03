@@ -17,7 +17,7 @@ const uint8_t vibratorPin = 16;
 const uint8_t laserPin = 18;
 
 
-// Change the following numbers for PCB
+// Change the following numbers for PC
 const uint8_t rightButtonPin = 34; // Replace 12 with the GPIO pin number to which your button is connected
 const uint8_t leftButtonPin = 32;
 const uint8_t okButtonPin = 35;

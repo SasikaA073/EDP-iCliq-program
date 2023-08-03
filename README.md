@@ -58,3 +58,17 @@ https://github.com/T-vK/ESP32-BLE-Keyboard
 https://github.com/T-vK/ESP32-BLE-Keyboard/releases/tag/0.3.0
 
 eZbutton.h
+https://github.com/ArduinoGetStarted/button
+
+### TODO : 
+
+Presentation Mode : 
+    - laser Mode
+    - slide change
+
+Speech Mode 
+    - vibrator on 
+    - laser Mode
+    - slide change
+
+CountUp mode 

@@ -1,6 +1,6 @@
-/* Program for Magicbit */
+/* Program for PCB */
 
-#include "icliq.h"
+#include "icliq_pcb.h"
 #include "ezButton.h"
 #include <BleKeyboard.h>
 
@@ -14,6 +14,7 @@ float first_time_flag = 1.0;
 float second_time_flag = 2.0;
 float third_time_flag = 3.0;
 
+#define DEBOUNCE_TIME 70
 #define UPPER_TIME_LIMIT 30.0
 
 // To identify modes of the device
@@ -32,21 +33,32 @@ int okButtonPressedCount = 0;
 void setup()
 {
 
-  // Initialize buttons
-  rightButton.setDebounceTime(50);         // Adjust the debounce time as needed (in milliseconds)
-  rightButton.setCountMode(COUNT_FALLING); // Change this to COUNT_RISING or COUNT_BOTH if needed
-
-  leftButton.setDebounceTime(50);
-  leftButton.setCountMode(COUNT_FALLING); // when state change from high to low detect the press
-
-  okButton.setDebounceTime(50);
-  okButton.setCountMode(COUNT_FALLING);
+  Serial.begin(115200);
+  Serial.println("");
+  Serial.println("# Starting iCliQ...");
 
   // Initialize leds & laser
   pinMode(RledPin, OUTPUT);
   pinMode(GledPin, OUTPUT);
   pinMode(BledPin, OUTPUT);
   pinMode(laserPin, OUTPUT);
+
+  // Switch off the RGB light & laser
+  analogWrite(RledPin, 255);
+  analogWrite(GledPin, 255);
+  analogWrite(BledPin, 255);
+  digitalWrite(laserPin, LOW);
+  Serial.println("- Switched off RGB light & Laser.");
+
+  // Initialize buttons
+  rightButton.setDebounceTime(DEBOUNCE_TIME); // Adjust the debounce time as needed (in milliseconds)
+  rightButton.setCountMode(COUNT_FALLING);    // Change this to COUNT_RISING or COUNT_BOTH if needed
+
+  leftButton.setDebounceTime(DEBOUNCE_TIME);
+  leftButton.setCountMode(COUNT_FALLING); // when state change from high to low detect the press
+
+  okButton.setDebounceTime(DEBOUNCE_TIME);
+  okButton.setCountMode(COUNT_FALLING);
 
   // Initialize BLE Keyboard
   bleKeyboard.begin();
@@ -57,13 +69,9 @@ void setup()
   // Initialize vibratorPin
   pinMode(vibratorPin, OUTPUT);
 
-  // Initialize touch output ---- Uncomment this & change the Pin numbers when uploading to the pcb
-  // pinMode(touchUp, INPUT);
-  // pinMode(touchDown, INPUT);
-
-  Serial.begin(115200);
-  Serial.println("");
-  Serial.println("# Starting iCliQ...");
+  // Initialize touch output
+  pinMode(touchUp, INPUT);
+  pinMode(touchDown, INPUT);
 
   // // Display the logo
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
@@ -95,12 +103,6 @@ void setup()
     animate_android_loading();
   }
   Serial.println("# task between animation played.");
-  // Switch off the RGB light & laser
-  analogWrite(RledPin, 255);
-  analogWrite(GledPin, 255);
-  analogWrite(BledPin, 255);
-  digitalWrite(laserPin, LOW);
-  Serial.println("- Switched off RGB light & Laser.");
 
   Serial.println("# Setup is done.\n");
   Serial.println(" ");
@@ -113,6 +115,8 @@ void setup()
 
 void loop()
 {
+  Serial.print("Ok button pressed Count = ");
+  Serial.println(okButtonPressedCount);
 
   if (isCharging == true)
   { //
@@ -130,8 +134,8 @@ void loop()
   else if (isCharging == false)
   {
 
-    Serial.print("Speech Mode ");
-    Serial.println(speechModeOn);
+    // Serial.print("Speech Mode ");
+    // Serial.println(speechModeOn);
     // main loop ---------------------------------------------------- Configuration for Ok Button ----------------------------------------------------------------------
     if (okButton.isPressed())
     {
@@ -161,7 +165,7 @@ void loop()
         is_okButton_LongDetected = true;
 
         // Go to speech mode when Ok Button is long pressed.
-        speechModeOn != speechModeOn;
+        // speechModeOn == true;
         animate_android_loading();
         Serial.println("animate android loading after long press");
         delay(100);
@@ -169,25 +173,25 @@ void loop()
     }
 
     // main loop - config Ok button ends. ------------------------------------------------------------------------------------------------------------------------------------------------------------
-    
+
     // Speech Mode ON
-    if (speechModeOn == true)
-    {
+    // if (speechModeOn == true)
+    // {
 
-      if (printedToScreen_speechModeOn == true)
-      {
-        Serial.println("# Speech Mode on.");
-        printedToScreen_speechModeOn = false;
+    //   if (printedToScreen_speechModeOn == true)
+    //   {
+    //     Serial.println("# Speech Mode on.");
+    //     printedToScreen_speechModeOn = false;
 
-        // TODO: Write a function to count down
-        // TODO: Function to display the color in RGB
-        // TODO: Function to vibrate the motor
-      }
-    }
+    //     // TODO: Write a function to count down
+    //     // TODO: Function to display the color in RGB
+    //     // TODO: Function to vibrate the motor
+    //   }
+    // }
 
     // Speech Mode OFF
-    else if (speechModeOn == false) // While not charging
-    {
+    // else if (speechModeOn == false) // While not charging
+    // {
 
       leftButton.loop(); // Call the loop method to update the button state
       rightButton.loop();
@@ -240,13 +244,13 @@ void loop()
         - Presentation Mode
 
         - */
-      if ((okButtonPressedCount % 4) == 0)
+      if ((okButtonPressedCount % 5) == 0)
       {
         // Time View Mode
         //          - works bluetooth slides changing
         //          - works Laser
 
-        Serial.println("        # presentation Mode On. ");
+        // Serial.println("        # presentation Mode On. ");
 
         display.clearDisplay();
 
@@ -279,23 +283,24 @@ void loop()
           {
             display.clearDisplay();
             display.setCursor(0, 0);
-            display.print("Bluetooth device is connected.");
+            // display.print("Bluetooth device is connected.");
             display.display();
 
             printedBluetoothDevice = false;
+            delay(1000);
           }
 
           if (rightButton.isPressed())
           {
-            bleKeyboard.write(KEY_RIGHT_ARROW);
+            bleKeyboard.write(KEY_RETURN);
+            delay(500);
             Serial.println("Moved to the next slide.");
-            delay(10);
           }
           if (leftButton.isPressed())
           {
             bleKeyboard.write(KEY_LEFT_ARROW);
+            delay(500);
             Serial.println("Moved to the previous slide.");
-            delay(10);
           }
         }
 
@@ -309,7 +314,7 @@ void loop()
       }
 
       // First time flag change mode
-      else if ((okButtonPressedCount % 4) == 1)
+      else if ((okButtonPressedCount % 5) == 1)
       {
 
         // Change time flags accordingly.
@@ -324,7 +329,7 @@ void loop()
         }
         delay(10);
 
-        Serial.println("                - first Time flag change mode");
+        // Serial.println("                - first Time flag change mode");
         display.clearDisplay();
         displayArrowKey(32, 8, 24, 16, 40, 16, true);
         delay(10);
@@ -363,7 +368,7 @@ void loop()
       }
 
       // Second time flag change mode
-      else if ((okButtonPressedCount % 4) == 2)
+      else if ((okButtonPressedCount % 5) == 2)
       {
 
         // Change time flags accordingly
@@ -372,7 +377,7 @@ void loop()
           third_time_flag = second_time_flag;
         }
 
-        Serial.println("                - second Time flag change mode");
+        // Serial.println("                - second Time flag change mode");
         display.clearDisplay();
         displayArrowKey(64, 8, 56, 16, 72, 16, true);
         delay(10);
@@ -411,10 +416,10 @@ void loop()
       }
 
       // Third time flag change mode
-      else if ((okButtonPressedCount % 4) == 3)
+      else if ((okButtonPressedCount % 5) == 3)
       {
 
-        Serial.println("                - third Time flag change mode");
+        // Serial.println("                - third Time flag change mode");
         display.clearDisplay();
         displayArrowKey(96, 8, 88, 16, 104, 16, true);
         delay(10);
@@ -452,10 +457,38 @@ void loop()
         }
       }
 
+      // Speech Mode on
+
+      else if ((okButtonPressedCount % 5) == 4)
+      {
+
+        if (rightButton.isPressed() && !speechModeOn)
+        {
+          Serial.println("right Button Pressed! - Speech Mode ");
+
+          // if (second_time_flag > 0)
+          // {
+          //   second_time_flag -= 0.5;
+          //   // changeRGBcolor(127,0,0,500);
+          // }
+          // Do something in response to the button press
+        }
+        if (rightButton.isPressed())
+        {
+          Serial.println("right Button Pressed! - first time flag Mode On");
+          if (second_time_flag < UPPER_TIME_LIMIT)
+          {
+            // Do something in response to the button press
+            second_time_flag += 0.5;
+            // changeRGBcolor(0,127,0,500);
+          }
+        }
+      }
+
       display.clearDisplay();
     }
   }
-}
+// }
 
 /* Algorithm *******************************************
 okButtonsCount = 0
@@ -498,3 +531,9 @@ if okButtonLongPress detected:
 }
 
 */
+
+// TODO: slides change
+// TODO: change font type
+// TODO: Count down mode
+// TODO: Vibrator down
+// TODO: Lasor On off
