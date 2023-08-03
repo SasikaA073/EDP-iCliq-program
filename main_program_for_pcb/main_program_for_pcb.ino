@@ -51,8 +51,8 @@ void setup()
   Serial.println("- Switched off RGB light & Laser.");
 
   // Initialize buttons
-  rightButton.setDebounceTime(DEBOUNCE_TIME);        // Adjust the debounce time as needed (in milliseconds)
-  rightButton.setCountMode(COUNT_FALLING); // Change this to COUNT_RISING or COUNT_BOTH if needed
+  rightButton.setDebounceTime(DEBOUNCE_TIME); // Adjust the debounce time as needed (in milliseconds)
+  rightButton.setCountMode(COUNT_FALLING);    // Change this to COUNT_RISING or COUNT_BOTH if needed
 
   leftButton.setDebounceTime(DEBOUNCE_TIME);
   leftButton.setCountMode(COUNT_FALLING); // when state change from high to low detect the press
@@ -115,9 +115,10 @@ void setup()
 
 void loop()
 {
-  Serial.prinln()
+  Serial.print("Ok button pressed Count = ");
+  Serial.println(okButtonPressedCount);
 
-  if (isCharging == true)
+      if (isCharging == true)
   { //
 
     Serial.println("# Device is charging...");
@@ -174,23 +175,23 @@ void loop()
     // main loop - config Ok button ends. ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     // Speech Mode ON
-    if (speechModeOn == true)
-    {
+    // if (speechModeOn == true)
+    // {
 
-      if (printedToScreen_speechModeOn == true)
-      {
-        Serial.println("# Speech Mode on.");
-        printedToScreen_speechModeOn = false;
+    //   if (printedToScreen_speechModeOn == true)
+    //   {
+    //     Serial.println("# Speech Mode on.");
+    //     printedToScreen_speechModeOn = false;
 
-        // TODO: Write a function to count down
-        // TODO: Function to display the color in RGB
-        // TODO: Function to vibrate the motor
-      }
-    }
+    //     // TODO: Write a function to count down
+    //     // TODO: Function to display the color in RGB
+    //     // TODO: Function to vibrate the motor
+    //   }
+    // }
 
     // Speech Mode OFF
-    else if (speechModeOn == false) // While not charging
-    {
+    // else if (speechModeOn == false) // While not charging
+    // {
 
       leftButton.loop(); // Call the loop method to update the button state
       rightButton.loop();
@@ -243,7 +244,7 @@ void loop()
         - Presentation Mode
 
         - */
-      if ((okButtonPressedCount % 4) == 0)
+      if ((okButtonPressedCount % 5) == 0)
       {
         // Time View Mode
         //          - works bluetooth slides changing
@@ -291,15 +292,15 @@ void loop()
 
           if (rightButton.isPressed())
           {
-            bleKeyboard.write(KEY_RIGHT_ARROW);
+            bleKeyboard.write(KEY_RETURN);
+            delay(500);
             Serial.println("Moved to the next slide.");
-            delay(10);
           }
           if (leftButton.isPressed())
           {
             bleKeyboard.write(KEY_LEFT_ARROW);
+            delay(500);
             Serial.println("Moved to the previous slide.");
-            delay(10);
           }
         }
 
@@ -313,7 +314,7 @@ void loop()
       }
 
       // First time flag change mode
-      else if ((okButtonPressedCount % 4) == 1)
+      else if ((okButtonPressedCount % 5) == 1)
       {
 
         // Change time flags accordingly.
@@ -367,7 +368,7 @@ void loop()
       }
 
       // Second time flag change mode
-      else if ((okButtonPressedCount % 4) == 2)
+      else if ((okButtonPressedCount % 5) == 2)
       {
 
         // Change time flags accordingly
@@ -415,7 +416,7 @@ void loop()
       }
 
       // Third time flag change mode
-      else if ((okButtonPressedCount % 4) == 3)
+      else if ((okButtonPressedCount % 5) == 3)
       {
 
         // Serial.println("                - third Time flag change mode");
@@ -456,10 +457,22 @@ void loop()
         }
       }
 
+
+      // Speech Mode
+      else if ((okButtonPressedCount % 5) == 4){
+        if (rightButton.isPressed()){
+          digitalWrite(laserPin, HIGH);
+
+        }
+
+      if (leftButton.isPressed()){
+          digitalWrite(laserPin, LOW);
+      }
+      }
       display.clearDisplay();
     }
   }
-}
+// }
 
 /* Algorithm *******************************************
 okButtonsCount = 0
@@ -502,7 +515,6 @@ if okButtonLongPress detected:
 }
 
 */
-
 
 // TODO: slides change
 // TODO: change font type
