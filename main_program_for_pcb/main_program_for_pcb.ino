@@ -1,38 +1,32 @@
 /* Program for PCB */
 
-// #include "button.h"
-#include "icliq.h"
+#include "icliq_pcb.h"
 #include "ezButton.h"
+#include <BleKeyboard.h>
 
-const uint8_t batteryLevelPin = 17;
-const uint8_t laserPin = 18;
-
-const uint8_t redPin = 14;
-const uint8_t greenPin = 12;
-const uint8_t bluePin = 13;
-// Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-
-const uint8_t rightButtonPin = 25; // Replace 12 with the GPIO pin number to which your button is connected
-const uint8_t leftButtonPin = 27;
-const uint8_t okButtonPin = 26;
-
-const int SHORT_PRESS_TIME = 1000; // 1000 milliseconds
-const int LONG_PRESS_TIME = 1000;  // 1000 milliseconds
+BleKeyboard bleKeyboard;
 
 ezButton rightButton(rightButtonPin, INPUT_PULLUP); // Create an instance of the ezButton class
 ezButton leftButton(leftButtonPin, INPUT_PULLUP);
 ezButton okButton(okButtonPin, INPUT_PULLUP);
 
-uint8_t time_duration = 3;
+float first_time_flag = 1.0;
+float second_time_flag = 2.0;
+float third_time_flag = 3.0;
+
+#define UPPER_TIME_LIMIT 30.0
 
 // To identify modes of the device
 bool isCharging = false;
 bool timeSetModeOn = false;
+bool isLaserOn = false;
+bool speechModeOn = false;
 
-unsigned long okButton_pressedTime = 0;
-unsigned long okButton_releasedTime = 0;
-bool is_okButton_Pressing = false;
-bool is_okButton_LongDetected = false;
+// Booleans to store to the serial output
+bool printedToScreen_speechModeOn = true;
+bool printedBluetoothDevice = true;
+
+int okButtonPressedCount = 0;
 
 // function to write text on the OLED screen
 void setup()
@@ -48,15 +42,24 @@ void setup()
   okButton.setDebounceTime(50);
   okButton.setCountMode(COUNT_FALLING);
 
-  // Initialize RGB Leds
-  pinMode(redPin , OUTPUT);
-  pinMode(greenPin, OUTPUT);
-  pinMode(bluePin, OUTPUT);
-
+  // Initialize leds & laser
+  pinMode(RledPin, OUTPUT);
+  pinMode(GledPin, OUTPUT);
+  pinMode(BledPin, OUTPUT);
   pinMode(laserPin, OUTPUT);
-  
 
-  // Initialize leds
+  // Initialize BLE Keyboard
+  bleKeyboard.begin();
+
+  // Initialize batteryPin
+  pinMode(batteryLevelPin, INPUT);
+
+  // Initialize vibratorPin
+  pinMode(vibratorPin, OUTPUT);
+
+  // Initialize touch output 
+  pinMode(touchUp, INPUT);
+  pinMode(touchDown, INPUT);
 
   Serial.begin(115200);
   Serial.println("");
@@ -79,8 +82,6 @@ void setup()
     animate_hexagon_loading();
   }
 
-  // delay(2000);
-
   display.clearDisplay();
   display.display();
 
@@ -93,41 +94,50 @@ void setup()
   {
     animate_android_loading();
   }
+  Serial.println("# task between animation played.");
+  // Switch off the RGB light & laser
+  analogWrite(RledPin, 255);
+  analogWrite(GledPin, 255);
+  analogWrite(BledPin, 255);
+  digitalWrite(laserPin, LOW);
+  Serial.println("- Switched off RGB light & Laser.");
 
-  Serial.println("# Setup is done.");
+  Serial.println("# Setup is done.\n");
   Serial.println(" ");
   // delay(3000);
   delay(300);
   display.clearDisplay();
   display.display();
-  display.setTextSize(2);
+  // display.setTextSize(2);
 }
 
 void loop()
 {
 
   if (isCharging == true)
-  {
+  { //
+
+    Serial.println("# Device is charging...");
+
+    // TODO: Write a function to identify charging.
     display.clearDisplay();
     display.drawBitmap(0, 0, battery_charging, 128, 64, 1);
     display.display();
     delay(10);
   }
-  else
-  {
-    leftButton.loop(); // Call the loop method to update the button state
-    rightButton.loop();
-    okButton.loop();
 
-    // ---------------------------------------------------- Configuration for Ok Button ----------------------------------------------------------------------
-    // short press, long press
+  // While not charging
+  else if (isCharging == false)
+  {
+
+    Serial.print("Speech Mode ");
+    Serial.println(speechModeOn);
+    // main loop ---------------------------------------------------- Configuration for Ok Button ----------------------------------------------------------------------
     if (okButton.isPressed())
     {
       okButton_pressedTime = millis();
-
       is_okButton_Pressing = true;
       is_okButton_LongDetected = false;
-      
     }
 
     if (okButton.isReleased())
@@ -138,15 +148,7 @@ void loop()
       long okButton_pressDuration = okButton_releasedTime - okButton_pressedTime;
 
       if (okButton_pressDuration < SHORT_PRESS_TIME)
-        Serial.println("A short press in okButton detected");
-      display.setCursor(0, 0);
-      // display.print("A short press is detected.");
-      timeSetModeOn =! timeSetModeOn;
-      // display.display();
-      // delay(10);
-
-      delay(100);
-      animate_android_loading();
+        Serial.println("# main loop      + short press - okButton detected");
     }
 
     if (is_okButton_Pressing == true && is_okButton_LongDetected == false)
@@ -155,74 +157,344 @@ void loop()
 
       if (okButton_pressDuration > LONG_PRESS_TIME)
       {
-        Serial.println("A long press in OkButton detected");
+        Serial.println("# main loop       + long press - okButton detected");
         is_okButton_LongDetected = true;
+
+        // Go to speech mode when Ok Button is long pressed.
+        speechModeOn != speechModeOn;
+        animate_android_loading();
+        Serial.println("animate android loading after long press");
+        delay(100);
+      }
+    }
+
+    // main loop - config Ok button ends. ------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+    // Speech Mode ON
+    if (speechModeOn == true)
+    {
+
+      if (printedToScreen_speechModeOn == true)
+      {
+        Serial.println("# Speech Mode on.");
+        printedToScreen_speechModeOn = false;
+
+        // TODO: Write a function to count down
+        // TODO: Function to display the color in RGB
+        // TODO: Function to vibrate the motor
+      }
+    }
+
+    // Speech Mode OFF
+    else if (speechModeOn == false) // While not charging
+    {
+
+      leftButton.loop(); // Call the loop method to update the button state
+      rightButton.loop();
+      okButton.loop();
+
+      // presentation mode On ---------------------------------------------------- Configuration for Ok Button ----------------------------------------------------------------------
+      if (okButton.isPressed())
+      {
+        okButton_pressedTime = millis();
+        is_okButton_Pressing = true;
+        is_okButton_LongDetected = false;
+      }
+
+      if (okButton.isReleased())
+      {
+        is_okButton_Pressing = false;
+        okButton_releasedTime = millis();
+
+        long okButton_pressDuration = okButton_releasedTime - okButton_pressedTime;
+
+        if (okButton_pressDuration < SHORT_PRESS_TIME)
+          Serial.println("        + short press - okButton detected");
+        okButtonPressedCount += 1;
+      }
+
+      if (is_okButton_Pressing == true && is_okButton_LongDetected == false)
+      {
+        long okButton_pressDuration = millis() - okButton_pressedTime;
+
+        if (okButton_pressDuration > LONG_PRESS_TIME)
+        {
+          Serial.println("        + long press - okButton detected");
+          is_okButton_LongDetected = true;
+
+          speechModeOn = true;
+          // animate_android_loading();
+          delay(5);
+        }
+      }
+
+      // ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+      // ----- Code for mode change ...
+
+      /*
+      There are three modes that run in this device.
+        - Speech Mode
+          - vibrator will vibrates.
+
+        - Presentation Mode
+
+        - */
+      if ((okButtonPressedCount % 4) == 0)
+      {
+        // Time View Mode
+        //          - works bluetooth slides changing
+        //          - works Laser
+
+        Serial.println("        # presentation Mode On. ");
+
+        display.clearDisplay();
+
         display.setCursor(0, 0);
-        display.print("A long press is detected.");
+        display.print("Presentation Mode ");
+        delay(5);
+        display.setCursor(24, 24);
+        display.print(first_time_flag);
+        delay(5);
+        display.setCursor(56, 24);
+        display.print(second_time_flag);
+        delay(5);
+        display.setCursor(88, 24);
+        display.print(third_time_flag);
+        delay(5);
+
+        display.display();
+
+        if (bleKeyboard.isConnected())
+        {
+
+          // TODO: A function to show the bluetooth device connected.
+          // TODO: Write the code to change the slides in a presentation.
+
+          // Bluetooth learn tutorial - https://randomnerdtutorials.com/esp32-bluetooth-low-energy-ble-arduino-ide/#:~:text=The%20ESP32%20can%20act%20as,installed%20on%20the%20Arduino%20IDE.
+
+          Serial.println("            + Bluetooth device is connected. ");
+
+          if (printedBluetoothDevice == true)
+          {
+            display.clearDisplay();
+            display.setCursor(0, 0);
+            display.print("Bluetooth device is connected.");
+            display.display();
+
+            printedBluetoothDevice = false;
+          }
+
+          if (rightButton.isPressed())
+          {
+            bleKeyboard.write(KEY_RIGHT_ARROW);
+            Serial.println("Moved to the next slide.");
+            delay(10);
+          }
+          if (leftButton.isPressed())
+          {
+            bleKeyboard.write(KEY_LEFT_ARROW);
+            Serial.println("Moved to the previous slide.");
+            delay(10);
+          }
+        }
+
+        // ---------------------------------------------------- Configuration for rightButton ----------------------------------------------------------------------
+        // short press, long press
+
+        // TODO: Long press right button - laser ON
+        // TODO: Long press left button - laser OFF
+        // TODO: Short press right button - Go to next slide
+        // TODO: short press right button - Go to previous slide
+      }
+
+      // First time flag change mode
+      else if ((okButtonPressedCount % 4) == 1)
+      {
+
+        // Change time flags accordingly.
+        if (first_time_flag > second_time_flag)
+        {
+          second_time_flag = first_time_flag;
+        }
+
+        if (first_time_flag > third_time_flag)
+        {
+          third_time_flag = first_time_flag;
+        }
+        delay(10);
+
+        Serial.println("                - first Time flag change mode");
+        display.clearDisplay();
+        displayArrowKey(32, 8, 24, 16, 40, 16, true);
+        delay(10);
+        display.setCursor(24, 24);
+        display.print(first_time_flag);
+        delay(10);
+        display.setCursor(56, 24);
+        display.print(second_time_flag);
+        delay(10);
+        display.setCursor(88, 24);
+        display.print(third_time_flag);
+        displayArrowKey(32, 8, 24, 16, 40, 16, false);
         display.display();
         delay(10);
-      }
-    }
 
-    if (timeSetModeOn == true)
-    {
-
-      displayArrowKey(64, 8, 56, 16, 72, 16, true);
-      delay(10);
-      display.setCursor(56, 24);
-      display.print(time_duration);
-      delay(10);
-      displayArrowKey(64, 8, 56, 16, 72, 16, false);
-      display.display();
-      delay(10);
-      // changeRGBcolor(0,50,50,100);
-
-      if (leftButton.isPressed())
-      {
-        Serial.println("left Button Pressed!");
-        if (time_duration > 0)
+        if (leftButton.isPressed())
         {
-          time_duration -= 1;
-          // changeRGBcolor(127,0,0,500);
-        }
-        // Do something in response to the button press
-      }
-      if (rightButton.isPressed())
-      {
-        Serial.println("right Button Pressed!");
-        if (time_duration < 30)
-        {
+          Serial.println("left Button Pressed! - first time flag Mode");
+          if (first_time_flag > 0)
+          {
+            first_time_flag -= 0.5;
+            // changeRGBcolor(127,0,0,500);
+          }
           // Do something in response to the button press
-          time_duration += 1;
-          // changeRGBcolor(0,127,0,500);
+        }
+        if (rightButton.isPressed())
+        {
+          Serial.println("right Button Pressed! - first time flag Mode On");
+          if (first_time_flag < UPPER_TIME_LIMIT)
+          {
+            // Do something in response to the button press
+            first_time_flag += 0.5;
+            // changeRGBcolor(0,127,0,500);
+          }
         }
       }
-    }
 
-    else if (timeSetModeOn == false)
-    {
-      display.setCursor(56, 24);
-      display.print(time_duration);
-      delay(10);
-      display.display();
-      delay(10);
-
-      
-      if (rightButton.isPressed())
+      // Second time flag change mode
+      else if ((okButtonPressedCount % 4) == 2)
       {
-        Serial.println("left Button Pressed! - timeSetMode Off");
-        digitalWrite(laserPin, HIGH);
+
+        // Change time flags accordingly
+        if (second_time_flag > third_time_flag)
+        {
+          third_time_flag = second_time_flag;
+        }
+
+        Serial.println("                - second Time flag change mode");
+        display.clearDisplay();
+        displayArrowKey(64, 8, 56, 16, 72, 16, true);
+        delay(10);
+        display.setCursor(24, 24);
+        display.print(first_time_flag);
+        delay(10);
+        display.setCursor(56, 24);
+        display.print(second_time_flag);
+        delay(10);
+        display.setCursor(88, 24);
+        display.print(third_time_flag);
+        displayArrowKey(64, 8, 56, 16, 72, 16, false);
+        display.display();
+        delay(10);
+
+        if (leftButton.isPressed())
+        {
+          Serial.println("left Button Pressed! - first time flag Mode");
+          if (second_time_flag > 0)
+          {
+            second_time_flag -= 0.5;
+            // changeRGBcolor(127,0,0,500);
+          }
+          // Do something in response to the button press
+        }
+        if (rightButton.isPressed())
+        {
+          Serial.println("right Button Pressed! - first time flag Mode On");
+          if (second_time_flag < UPPER_TIME_LIMIT)
+          {
+            // Do something in response to the button press
+            second_time_flag += 0.5;
+            // changeRGBcolor(0,127,0,500);
+          }
+        }
       }
 
-      if (leftButton.isPressed())
+      // Third time flag change mode
+      else if ((okButtonPressedCount % 4) == 3)
       {
-        Serial.println("left Button Pressed! - timeSetMode Off");
-        digitalWrite(laserPin, LOW);
-        // Do something in response to the button press
+
+        Serial.println("                - third Time flag change mode");
+        display.clearDisplay();
+        displayArrowKey(96, 8, 88, 16, 104, 16, true);
+        delay(10);
+        display.setCursor(24, 24);
+        display.print(first_time_flag);
+        delay(10);
+        display.setCursor(56, 24);
+        display.print(second_time_flag);
+        delay(10);
+        display.setCursor(88, 24);
+        display.print(third_time_flag);
+        displayArrowKey(96, 8, 88, 16, 104, 16, false);
+        display.display();
+        delay(10);
+
+        if (leftButton.isPressed())
+        {
+          Serial.println("left Button Pressed! - first time flag Mode");
+          if (third_time_flag > 0)
+          {
+            third_time_flag -= 0.5;
+            // changeRGBcolor(127,0,0,500);
+          }
+          // Do something in response to the button press
+        }
+        if (rightButton.isPressed())
+        {
+          Serial.println("right Button Pressed! - first time flag Mode On");
+          if (third_time_flag < UPPER_TIME_LIMIT)
+          {
+            // Do something in response to the button press
+            third_time_flag += 0.5;
+            // changeRGBcolor(0,127,0,500);
+          }
+        }
       }
 
+      display.clearDisplay();
     }
-
-    display.clearDisplay();
   }
 }
+
+/* Algorithm *******************************************
+okButtonsCount = 0
+
+main loop():{
+
+if okButton.pressed():
+    okButtonsCount += 1
+
+if okButtonsCount %4 == 0:
+    print("You have pressed the OK button 4 times")
+    run the program for slides change
+
+    if rightButton.longPress detected:
+        start Laser
+    if leftButton.longPress detected:
+        Switch off Laser
+
+
+elif okButtonsCount %4 == 1:
+    doSomething() first timeChange
+
+elif okButtonsCount %4 == 2:
+    doSomething() second timeChange
+
+elif okButtonsCount %4 == 3:
+    doSomething() thirdTimeChange
+
+if okButtonLongPress detected:
+
+    start countdowning
+
+    run the program for slides change
+
+    if rightButton.longPress detected:
+        start Laser
+    if leftButton.longPress detected:
+        Switch off Laser
+
+}
+
+*/

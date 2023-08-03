@@ -49,3 +49,12 @@ on/off
 2.5 LED bulb
 2.6 Laser pointer
 >>>>>>> d595b435e91ea428b4dfab799d4428956ef5e467
+
+
+## Libraries Used
+
+Bluetooth Keyboard Library
+https://github.com/T-vK/ESP32-BLE-Keyboard
+https://github.com/T-vK/ESP32-BLE-Keyboard/releases/tag/0.3.0
+
+eZbutton.h

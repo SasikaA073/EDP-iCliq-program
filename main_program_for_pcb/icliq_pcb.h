@@ -18,12 +18,12 @@ const uint8_t laserPin = 18;
 
 
 // Change the following numbers for PCB
-const uint8_t rightButtonPin = 34; // Replace 12 with the GPIO pin number to which your button is connected
-const uint8_t leftButtonPin = 32;
-const uint8_t okButtonPin = 35;
+const uint8_t rightButtonPin = 25; // Replace 12 with the GPIO pin number to which your button is connected
+const uint8_t leftButtonPin = 27;
+const uint8_t okButtonPin = 26;
 
-// const uint8_t touchUp = 32; 
-// const uint8_t touchDown = 33;
+const uint8_t touchUp = 32; 
+const uint8_t touchDown = 33;
 
 unsigned long okButton_pressedTime = 0;
 unsigned long okButton_releasedTime = 0;
