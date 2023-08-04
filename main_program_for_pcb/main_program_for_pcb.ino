@@ -187,6 +187,7 @@ void loop()
     if ((okButtonPressedCount % 5) == 0)
     {
       Serial.println("\n# Presentation Mode :  ");
+      animate_android_loading();
     }
     else if ((okButtonPressedCount % 5) == 1)
     {
@@ -195,14 +196,18 @@ void loop()
     else if ((okButtonPressedCount % 5) == 2)
     {
       Serial.println("\n# Time change Mode : flag 2 ");
+      // display.setTextSize(2);
     }
     else if ((okButtonPressedCount % 5) == 3)
     {
       Serial.println("\n# Time change Mode : flag 3 ");
+      // display.setTextSize(2);
+      // animate_android_loading();
     }
     else if ((okButtonPressedCount % 5) == 4)
     {
       Serial.println("\n# Speech Mode ");
+      // display.setTextSize(1);
       start_time = rtc.getMillis();
       // 17th Jan 2021 15:24:30
 
@@ -241,8 +246,10 @@ void loop()
     display.clearDisplay();
 
     display.setCursor(0, 0);
+    display.setTextSize(1);
     display.print("Presentation Mode ");
     delay(5);
+    display.setTextSize(2);
     display.setCursor(24, 24);
     display.print(first_time_flag);
     delay(5);
@@ -385,6 +392,7 @@ void loop()
     display.clearDisplay();
     displayArrowKey(32, 8, 24, 16, 40, 16, true);
     delay(10);
+    display.setTextSize(2);
     display.setCursor(24, 24);
     display.print(first_time_flag);
     delay(10);
@@ -433,6 +441,7 @@ void loop()
     display.clearDisplay();
     displayArrowKey(64, 8, 56, 16, 72, 16, true);
     delay(10);
+    display.setTextSize(2);
     display.setCursor(24, 24);
     display.print(first_time_flag);
     delay(10);
@@ -473,8 +482,10 @@ void loop()
 
     // Serial.println("                - third Time flag change mode");
     display.clearDisplay();
+
     displayArrowKey(96, 8, 88, 16, 104, 16, true);
     delay(10);
+    display.setTextSize(2);
     display.setCursor(24, 24);
     display.print(first_time_flag);
     delay(10);
