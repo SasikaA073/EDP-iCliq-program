@@ -72,3 +72,12 @@ Speech Mode
     - slide change
 
 CountUp mode 
+
+[] - count up
+[] - change timer to show in 30s
+[] - change font
+[] - try using both cores of CPU
+[] - add animation between speech mode, time change mode
+[] - vibrator motor on
+[] - laser on 
+[] - slide change 

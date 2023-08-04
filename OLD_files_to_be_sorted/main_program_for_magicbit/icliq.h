@@ -42,10 +42,6 @@ const uint8_t BledPin = 13;
 const uint8_t batteryLevelPin = 17;
 const uint8_t vibratorPin = 16;
 const uint8_t laserPin = 18;
-
-
-
-
 const uint8_t touchUp = 22; 
 const uint8_t touchDown = 23;
 
