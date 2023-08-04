@@ -25,6 +25,30 @@ const uint8_t okButtonPin = 35;
 // const uint8_t touchUp = 32; 
 // const uint8_t touchDown = 33;
 
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <Wire.h>
+#include <string.h>
+#include "loading_animation.h"
+#include "hexagon_animation.h"
+#include "battery.h"
+
+const uint8_t SCREEN_WIDTH = 128;
+const uint8_t SCREEN_HEIGHT = 64;
+
+const uint8_t RledPin = 14;
+const uint8_t GledPin = 12;
+const uint8_t BledPin = 13;
+const uint8_t batteryLevelPin = 17;
+const uint8_t vibratorPin = 16;
+const uint8_t laserPin = 18;
+
+
+
+
+const uint8_t touchUp = 22; 
+const uint8_t touchDown = 23;
+
 unsigned long okButton_pressedTime = 0;
 unsigned long okButton_releasedTime = 0;
 bool is_okButton_Pressing = false;
