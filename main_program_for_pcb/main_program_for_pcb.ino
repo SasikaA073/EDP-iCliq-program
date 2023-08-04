@@ -1,27 +1,20 @@
-/* Program for PCB */
-unsigned long delayTime; // 1000 milliseconds = 6 seconds
-hw_timer_t *timer = NULL;
-volatile uint8_t timer_count = 0;
- 
-void IRAM_ATTR onTimer() {
-  // Serial.println("First time passed - timer interruptor."); // Turn on the LED
-  timer_count += 1;
-}
 #include "icliq_pcb.h"
 #include "ezButton.h"
 #include <BleKeyboard.h>
 
+
 BleKeyboard bleKeyboard;
+
+// ESP32Time rtc;
+// ESP32Time rtc(3600); // offset in seconds GMT+1
 
 ezButton rightButton(rightButtonPin, INPUT_PULLUP); // Create an instance of the ezButton class
 ezButton leftButton(leftButtonPin, INPUT_PULLUP);
 ezButton okButton(okButtonPin, INPUT_PULLUP);
 
-float first_time_flag = 1.0;
-float second_time_flag = 2.0;
-float third_time_flag = 3.0;
-
-// int timer_count = 0; 
+int first_time_flag = 1;
+int second_time_flag = 2;
+int third_time_flag = 3;
 
 #define DEBOUNCE_TIME 70
 #define UPPER_TIME_LIMIT 30.0
@@ -49,17 +42,17 @@ unsigned long previousMillis = 0;
 
 int okButtonPressedCount = 0;
 
-unsigned long start_time;
+long start_time;
 
 // function to write text on the OLED screen
 void setup()
 {
 
-// Set up and start the timer
-  timer = timerBegin(0, 80, true); // Timer 0, prescaler 80 (1MHz frequency)
-  timerAttachInterrupt(timer, &onTimer, true); // Attach the interrupt function
-  timerAlarmWrite(timer, delayTime * 1000, false); // Set the alarm time in microseconds
-  timerAlarmEnable(timer); // Enable the timer
+  // Set up and start the timer
+  // timer = timerBegin(0, 80, true);                 // Timer 0, prescaler 80 (1MHz frequency)
+  // timerAttachInterrupt(timer, &onTimer, true);     // Attach the interrupt function
+  // timerAlarmWrite(timer, delayTime * 1000, false); // Set the alarm time in microseconds
+  // timerAlarmEnable(timer);                         // Enable the timer
 
   Serial.begin(115200);
   Serial.println("");
@@ -136,6 +129,7 @@ void setup()
     animate_android_loading();
   }
   Serial.println("# task between animation played.");
+  rtc.setTime(0, 0, 0, 5, 8, 2024); 
 
   Serial.println("# Setup is done.\n");
   Serial.println(" ");
@@ -148,8 +142,15 @@ void setup()
 void loop()
 {
 
-  Serial.print("timer count");
-  Serial.println(timer_count);
+  // Serial.println(rtc.getTime());
+
+  // if (rtc.getMinute() == 1){
+  //   digitalWrite(laserPin, HIGH);
+  //   Serial.println("timer - laser Pin HIGH");
+  // }
+
+  // Serial.print("timer count");
+  // Serial.println(timer_count);
   // Serial.print("Ok button pressed Count = ");
   // Serial.println(okButtonPressedCount);
 
@@ -202,9 +203,17 @@ void loop()
     else if ((okButtonPressedCount % 5) == 4)
     {
       Serial.println("\n# Speech Mode ");
-      start_time = millis();
+      start_time = rtc.getMillis();
+      // 17th Jan 2021 15:24:30
+
+      rtc.setTime(0, 0, 0, 5, 8, 2024); 
+
+      Serial.println(rtc.getTime());   //  (String) 15:24:38
+      Serial.println(rtc.getSecond()); //  (int)     38    (0-59)
+      Serial.println(rtc.getMinute());
     }
   }
+
 
   if (is_okButton_Pressing == true && is_okButton_LongDetected == false)
   {
@@ -222,7 +231,8 @@ void loop()
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+//  Serial.println(rtc.getSecond());        //  (int)     38    (0-59)
+//  Serial.println(rtc.getMinute());    
   // ----- Code for mode change ...
 
   if ((okButtonPressedCount % 5) == 0)
@@ -392,7 +402,7 @@ void loop()
       Serial.println("left Button Pressed! - first time flag Mode");
       if (first_time_flag > 0)
       {
-        first_time_flag -= 0.5;
+        first_time_flag -= 1;
         // changeRGBcolor(127,0,0,500);
       }
       // Do something in response to the button press
@@ -403,7 +413,7 @@ void loop()
       if (first_time_flag < UPPER_TIME_LIMIT)
       {
         // Do something in response to the button press
-        first_time_flag += 0.5;
+        first_time_flag += 1;
         // changeRGBcolor(0,127,0,500);
       }
     }
@@ -440,7 +450,7 @@ void loop()
       Serial.println("left Button Pressed! - second time flag Mode");
       if (second_time_flag > 0)
       {
-        second_time_flag -= 0.5;
+        second_time_flag -= 1;
         // changeRGBcolor(127,0,0,500);
       }
       // Do something in response to the button press
@@ -451,7 +461,7 @@ void loop()
       if (second_time_flag < UPPER_TIME_LIMIT)
       {
         // Do something in response to the button press
-        second_time_flag += 0.5;
+        second_time_flag += 1;
         // changeRGBcolor(0,127,0,500);
       }
     }
@@ -482,7 +492,7 @@ void loop()
       Serial.println("left Button Pressed! - third time flag Mode");
       if (third_time_flag > 0)
       {
-        third_time_flag -= 0.5;
+        third_time_flag -= 1;
         // changeRGBcolor(127,0,0,500);
       }
       // Do something in response to the button press
@@ -493,7 +503,7 @@ void loop()
       if (third_time_flag < UPPER_TIME_LIMIT)
       {
         // Do something in response to the button press
-        third_time_flag += 0.5;
+        third_time_flag += 1;
         // changeRGBcolor(0,127,0,500);
       }
     }
@@ -503,11 +513,51 @@ void loop()
   else if ((okButtonPressedCount % 5) == 4)
   {
 
-    first_time_interval = first_time_flag * 60 * 1000;
-    second_time_interval = second_time_flag * 60 * 1000;
-    third_time_interval = third_time_flag * 60 * 1000;
+          // Serial.println("Speech mode - ");
+      // First time flag passing
+      // Serial.print("first time flag");
+      // Serial.println(first_time_flag);
+      // Serial.println
+      if ((rtc.getMinute()  == first_time_flag) && (!firstTimeFlagPassed))
+      // (millis() / 1000) / 60
+      {
+        // Green color (255,0,255)
+        analogWrite(GledPin, 0);
 
-   
+        Serial.println("First time flag passed");
+        firstTimeFlagPassed = true;
+        delay(ledTimeDuration * 1000);
+        analogWrite(GledPin, 255);
+      }
+
+      
+      // Second time flag passing
+      if ((rtc.getMinute() == second_time_flag) && (!secondTimeFlagPassed))
+      {
+        // Yellow color (0,0,255)
+        analogWrite(RledPin, 0);
+        analogWrite(GledPin, 0);
+        Serial.println("Second time flag passed");
+        secondTimeFlagPassed = true;
+        delay(ledTimeDuration * 1000);
+        analogWrite(RledPin, 255);
+        analogWrite(GledPin, 255);
+      }
+
+      // Second time flag passing
+      if ((rtc.getMinute()  >= third_time_flag) && (!thirdTimeFlagPassed))
+      {
+        // Red color (0,255,255)
+        analogWrite(RledPin, 0);
+        Serial.println("Third time flag passed");
+        thirdTimeFlagPassed = true;
+        delay(ledTimeDuration * 1000);
+        analogWrite(RledPin, 255);
+      }
+
+    // first_time_interval = first_time_flag * 60 * 1000;
+    // second_time_interval = second_time_flag * 60 * 1000;
+    // third_time_interval = third_time_flag * 60 * 1000;
 
     display.clearDisplay();
     display.setCursor(0, 0);
@@ -631,52 +681,15 @@ void loop()
       }
 
       // -----------------------------------------------------------------------------------------------
-      Serial.println("Speech mode - ");
-      // First time flag passing
-      Serial.print("first time flag");
-      Serial.println(first_time_flag);
-      // Serial.println
-      if (((millis() - start_time)/ 1000) / 60 >= first_time_flag)
-      // (millis() / 1000) / 60
-      {
-        // Green color (255,0,255)
-        analogWrite(GledPin, 0);
 
-        Serial.println("First time flag passed");
-        firstTimeFlagPassed = true;
-        delay(ledTimeDuration * 1000);
-        analogWrite(GledPin, 255);
-      }
-      // Second time flag passing
-      if (((millis() - start_time) >= second_time_interval) && (!secondTimeFlagPassed))
-      {
-        // Yellow color (0,0,255)
-        analogWrite(RledPin, 0);
-        analogWrite(GledPin, 0);
-        Serial.println("Second time flag passed");
-        secondTimeFlagPassed = true;
-        delay(ledTimeDuration * 1000);
-        analogWrite(RledPin, 255);
-        analogWrite(GledPin, 255);
-      }
-      // Second time flag passing
-      if (((millis() - start_time) > third_time_flag) && (!thirdTimeFlagPassed))
-      {
-        // Red color (0,255,255)
-        analogWrite(RledPin, 0);
-        Serial.println("Third time flag passed");
-        thirdTimeFlagPassed = true;
-        delay(ledTimeDuration * 1000);
-        analogWrite(RledPin, 255);
-      }
 
-      if (firstTimeFlagPassed == true && secondTimeFlagPassed == true && thirdTimeFlagPassed == true)
-      {
-        display.clearDisplay();
-        display.setCursor(0, 56);
-        display.print("Your speech time is over...");
-        delay(ledTimeDuration * 1000 * 2);
-      }
+      // if (firstTimeFlagPassed == true && secondTimeFlagPassed == true && thirdTimeFlagPassed == true)
+      // {
+      //   display.clearDisplay();
+      //   display.setCursor(0, 56);
+      //   display.print("Your speech time is over...");
+      //   delay(ledTimeDuration * 1000 * 2);
+      // }
     }
   }
   display.clearDisplay();

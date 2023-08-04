@@ -5,6 +5,7 @@
 #include "loading_animation.h"
 #include "hexagon_animation.h"
 #include "battery.h"
+#include <ESP32Time.h>
 
 const uint8_t SCREEN_WIDTH = 128;
 const uint8_t SCREEN_HEIGHT = 64;
@@ -30,6 +31,9 @@ const uint8_t leftButtonPin = 34;
 const uint8_t okButtonPin = 35;
 const uint8_t touchUp = 22; 
 const uint8_t touchDown = 23;
+
+ESP32Time rtc(3600);  // offset in seconds GMT+1
+
 
 // Config for vibrator Motor
 int dutyCycle;
@@ -175,8 +179,10 @@ void animate_hexagon_loading()
 
 String getFormattedTime()
 {
-  unsigned long minutes = (millis() / 1000) / 60;
-  unsigned int seconds = (millis() / 1000) % 60;
+  
+  int minutes = rtc.getMinute();
+int seconds = rtc.getSecond();
+  
   
   return String(minutes) + " : " + String(seconds) ;
 }
