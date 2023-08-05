@@ -2,7 +2,6 @@
 #include "ezButton.h"
 #include <BleKeyboard.h>
 
-
 BleKeyboard bleKeyboard;
 
 // ESP32Time rtc;
@@ -129,7 +128,7 @@ void setup()
     animate_android_loading();
   }
   Serial.println("# task between animation played.");
-  rtc.setTime(0, 0, 0, 5, 8, 2024); 
+  rtc.setTime(0, 0, 0, 5, 8, 2024);
 
   Serial.println("# Setup is done.\n");
   Serial.println(" ");
@@ -211,14 +210,13 @@ void loop()
       start_time = rtc.getMillis();
       // 17th Jan 2021 15:24:30
 
-      rtc.setTime(0, 0, 0, 5, 8, 2024); 
+      rtc.setTime(0, 0, 0, 5, 8, 2024);
 
       Serial.println(rtc.getTime());   //  (String) 15:24:38
       Serial.println(rtc.getSecond()); //  (int)     38    (0-59)
       Serial.println(rtc.getMinute());
     }
   }
-
 
   if (is_okButton_Pressing == true && is_okButton_LongDetected == false)
   {
@@ -236,8 +234,8 @@ void loop()
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------------------------------------
-//  Serial.println(rtc.getSecond());        //  (int)     38    (0-59)
-//  Serial.println(rtc.getMinute());    
+  //  Serial.println(rtc.getSecond());        //  (int)     38    (0-59)
+  //  Serial.println(rtc.getMinute());
   // ----- Code for mode change ...
 
   if ((okButtonPressedCount % 5) == 0)
@@ -249,6 +247,13 @@ void loop()
     display.setTextSize(1);
     display.print("Presentation Mode ");
     delay(5);
+
+    if (bleKeyboard.isConnected())
+    {
+      display.setCursor(120, 0);
+      display.print("B");
+    }
+
     display.setTextSize(2);
     display.setCursor(24, 24);
     display.print(first_time_flag);
@@ -282,7 +287,7 @@ void loop()
       long leftButton_pressDuration = leftButton_releasedTime - leftButton_pressedTime;
 
       if (leftButton_pressDuration < SHORT_PRESS_TIME)
-        Serial.println("        presentation mode - A short press:right Button is detected");
+        Serial.println("        presentation mode - A short press:left Button is detected");
 
       // Run the vibrator motor
       // for (int j = 0; j < 5; j++)
@@ -524,47 +529,46 @@ void loop()
   else if ((okButtonPressedCount % 5) == 4)
   {
 
-          // Serial.println("Speech mode - ");
-      // First time flag passing
-      // Serial.print("first time flag");
-      // Serial.println(first_time_flag);
-      // Serial.println
-      if ((rtc.getMinute()  == first_time_flag) && (!firstTimeFlagPassed))
-      // (millis() / 1000) / 60
-      {
-        // Green color (255,0,255)
-        analogWrite(GledPin, 0);
+    // Serial.println("Speech mode - ");
+    // First time flag passing
+    // Serial.print("first time flag");
+    // Serial.println(first_time_flag);
+    // Serial.println
+    if ((rtc.getMinute() == first_time_flag) && (!firstTimeFlagPassed))
+    // (millis() / 1000) / 60
+    {
+      // Green color (255,0,255)
+      analogWrite(GledPin, 0);
 
-        Serial.println("First time flag passed");
-        firstTimeFlagPassed = true;
-        delay(ledTimeDuration * 1000);
-        analogWrite(GledPin, 255);
-      }
+      Serial.println("First time flag passed");
+      firstTimeFlagPassed = true;
+      delay(ledTimeDuration * 1000);
+      analogWrite(GledPin, 255);
+    }
 
-      
-      // Second time flag passing
-      if ((rtc.getMinute() == second_time_flag) && (!secondTimeFlagPassed))
-      {
-        // Yellow color (0,0,255)
-        analogWrite(RledPin, 0);
-        analogWrite(GledPin, 0);
-        Serial.println("Second time flag passed");
-        secondTimeFlagPassed = true;
-        delay(ledTimeDuration * 1000);
-        analogWrite(RledPin, 255);
-        analogWrite(GledPin, 255);
-      }
+    // Second time flag passing
+    if ((rtc.getMinute() == second_time_flag) && (!secondTimeFlagPassed))
+    {
+      // Yellow color (0,0,255)
+      analogWrite(RledPin, 0);
+      analogWrite(GledPin, 128);
+      Serial.println("Second time flag passed");
+      secondTimeFlagPassed = true;
+      delay(ledTimeDuration * 1000);
+      analogWrite(RledPin, 255);
+      analogWrite(GledPin, 255);
+    }
 
-      // Second time flag passing
-      if ((rtc.getMinute()  >= third_time_flag) && (!thirdTimeFlagPassed))
-      {
-        // Red color (0,255,255)
-        analogWrite(RledPin, 0);
-        Serial.println("Third time flag passed");
-        thirdTimeFlagPassed = true;
-        delay(ledTimeDuration * 1000);
-        analogWrite(RledPin, 255);
-      }
+    // Second time flag passing
+    if ((rtc.getMinute() >= third_time_flag) && (!thirdTimeFlagPassed))
+    {
+      // Red color (0,255,255)
+      analogWrite(RledPin, 0);
+      Serial.println("Third time flag passed");
+      thirdTimeFlagPassed = true;
+      delay(ledTimeDuration * 1000);
+      analogWrite(RledPin, 255);
+    }
 
     // first_time_interval = first_time_flag * 60 * 1000;
     // second_time_interval = second_time_flag * 60 * 1000;
@@ -574,6 +578,12 @@ void loop()
     display.setCursor(0, 0);
     display.setTextSize(1);
     display.print("Speech Mode ");
+
+    if (bleKeyboard.isConnected())
+    {
+      display.setCursor(120, 0);
+      display.print("B");
+    }
 
     // updateOLEDStartTime();
     updateOLED();
@@ -692,7 +702,6 @@ void loop()
       }
 
       // -----------------------------------------------------------------------------------------------
-
 
       // if (firstTimeFlagPassed == true && secondTimeFlagPassed == true && thirdTimeFlagPassed == true)
       // {
