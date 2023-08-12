@@ -1,6 +1,15 @@
+/*
+
+iCliQ - Company of Noobs
+
+Developed by - Sasika Amarasinghe (https://github.com/SasikaA073)
+
+*/
+
 #include "icliq_pcb.h"
 #include "ezButton.h"
 #include <BleKeyboard.h>
+#include <BLEDevice.h>
 
 BleKeyboard bleKeyboard;
 
@@ -43,15 +52,8 @@ int okButtonPressedCount = 0;
 
 long start_time;
 
-// function to write text on the OLED screen
 void setup()
 {
-
-  // Set up and start the timer
-  // timer = timerBegin(0, 80, true);                 // Timer 0, prescaler 80 (1MHz frequency)
-  // timerAttachInterrupt(timer, &onTimer, true);     // Attach the interrupt function
-  // timerAlarmWrite(timer, delayTime * 1000, false); // Set the alarm time in microseconds
-  // timerAlarmEnable(timer);                         // Enable the timer
 
   Serial.begin(115200);
   Serial.println("");
@@ -80,13 +82,15 @@ void setup()
   okButton.setDebounceTime(DEBOUNCE_TIME);
   okButton.setCountMode(COUNT_FALLING);
 
+  BLEDevice::init("iCliQ");
+
   // Initialize BLE Keyboard
   bleKeyboard.begin();
 
   // Initialize Vibrator motor
-  // ledcSetup(PWMChannel, PWMFreq, PWMResolution);
-  // /* Attach the LED PWM Channel to the GPIO Pin */
-  // ledcAttachPin(vibratorPin, PWMChannel);
+  ledcSetup(PWMChannel, PWMFreq, PWMResolution);
+  /* Attach the LED PWM Channel to the GPIO Pin */
+  ledcAttachPin(vibratorPin, PWMChannel);
 
   // Initialize batteryPin
   pinMode(batteryLevelPin, INPUT);
@@ -141,22 +145,9 @@ void setup()
 void loop()
 {
 
-  // Serial.println(rtc.getTime());
-
-  // if (rtc.getMinute() == 1){
-  //   digitalWrite(laserPin, HIGH);
-  //   Serial.println("timer - laser Pin HIGH");
-  // }
-
-  // Serial.print("timer count");
-  // Serial.println(timer_count);
-  // Serial.print("Ok button pressed Count = ");
-  // Serial.println(okButtonPressedCount);
-
   // main loop ---------------------------------------------------- Configuration for Ok Button ----------------------------------------------------------------------
   display.clearDisplay();
   display.setTextSize(1);
-  // display.display();
   leftButton.loop(); // Call the loop method to update the button state
   rightButton.loop();
   okButton.loop();
@@ -195,26 +186,24 @@ void loop()
     else if ((okButtonPressedCount % 5) == 2)
     {
       Serial.println("\n# Time change Mode : flag 2 ");
-      // display.setTextSize(2);
+     
     }
     else if ((okButtonPressedCount % 5) == 3)
     {
       Serial.println("\n# Time change Mode : flag 3 ");
-      // display.setTextSize(2);
-      // animate_android_loading();
+      
     }
     else if ((okButtonPressedCount % 5) == 4)
     {
       Serial.println("\n# Speech Mode ");
-      // display.setTextSize(1);
+    
+      // Reset the RTC clock
       start_time = rtc.getMillis();
-      // 17th Jan 2021 15:24:30
-
       rtc.setTime(0, 0, 0, 5, 8, 2024);
 
-      Serial.println(rtc.getTime());   //  (String) 15:24:38
-      Serial.println(rtc.getSecond()); //  (int)     38    (0-59)
-      Serial.println(rtc.getMinute());
+      // Serial.println(rtc.getTime());   //  (String) 15:24:38
+      // Serial.println(rtc.getSecond()); //  (int)     38    (0-59)
+      // Serial.println(rtc.getMinute());
     }
   }
 
@@ -228,14 +217,12 @@ void loop()
       is_okButton_LongDetected = true;
 
       speechModeOn = true;
-      // animate_android_loading();
       delay(5);
     }
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------------------------------------
-  //  Serial.println(rtc.getSecond());        //  (int)     38    (0-59)
-  //  Serial.println(rtc.getMinute());
+  
   // ----- Code for mode change ...
 
   if ((okButtonPressedCount % 5) == 0)
@@ -290,14 +277,13 @@ void loop()
         Serial.println("        presentation mode - A short press:left Button is detected");
 
       // Run the vibrator motor
-      // for (int j = 0; j < 5; j++)
-      // {
+      for (int j = 0; j < 5; j++)
+      {
 
-      //   runVibratorMotor();
-      //   Serial.println("presentation mode - Vibrator motor working!");
-      //   blinkRedLED();
-      //   Serial.println("presentation mode - Red light working!");
-      // }
+        runVibratorMotor();
+        Serial.println("presentation mode - Vibrator motor working!");
+        
+      }
     }
 
     if (rightButton.isPressed())
@@ -366,15 +352,7 @@ void loop()
       }
     }
 
-    // ------------------------------config for right button----------------------------------------------------------------------------
-
-    // ---------------------------------------------------- Configuration for rightButton ----------------------------------------------------------------------
-    // short press, long press
-
-    // TODO: Long press right button - laser ON
-    // TODO: Long press left button - laser OFF
-    // TODO: Short press right button - Go to next slide
-    // TODO: short press right button - Go to previous slide
+   
   }
 
   // First time flag change mode
@@ -418,16 +396,16 @@ void loop()
         first_time_flag -= 1;
         // changeRGBcolor(127,0,0,500);
       }
-      // Do something in response to the button press
+       
     }
     if (rightButton.isPressed())
     {
       Serial.println("right Button Pressed! - first time flag Mode On");
       if (first_time_flag < UPPER_TIME_LIMIT)
       {
-        // Do something in response to the button press
+         
         first_time_flag += 1;
-        // changeRGBcolor(0,127,0,500);
+         
       }
     }
   }
@@ -465,18 +443,18 @@ void loop()
       if (second_time_flag > 0)
       {
         second_time_flag -= 1;
-        // changeRGBcolor(127,0,0,500);
+       
       }
-      // Do something in response to the button press
+      
     }
     if (rightButton.isPressed())
     {
       Serial.println("right Button Pressed! - second time flag Mode On");
       if (second_time_flag < UPPER_TIME_LIMIT)
       {
-        // Do something in response to the button press
+         
         second_time_flag += 1;
-        // changeRGBcolor(0,127,0,500);
+         
       }
     }
   }
@@ -511,16 +489,16 @@ void loop()
         third_time_flag -= 1;
         // changeRGBcolor(127,0,0,500);
       }
-      // Do something in response to the button press
+       
     }
     if (rightButton.isPressed())
     {
       Serial.println("right Button Pressed! - third time flag Mode On");
       if (third_time_flag < UPPER_TIME_LIMIT)
       {
-        // Do something in response to the button press
+         
         third_time_flag += 1;
-        // changeRGBcolor(0,127,0,500);
+         
       }
     }
   }
@@ -529,13 +507,9 @@ void loop()
   else if ((okButtonPressedCount % 5) == 4)
   {
 
-    // Serial.println("Speech mode - ");
-    // First time flag passing
-    // Serial.print("first time flag");
-    // Serial.println(first_time_flag);
-    // Serial.println
+ 
     if ((rtc.getMinute() == first_time_flag) && (!firstTimeFlagPassed))
-    // (millis() / 1000) / 60
+   
     {
       // Green color (255,0,255)
       analogWrite(GledPin, 0);
@@ -559,7 +533,7 @@ void loop()
       analogWrite(GledPin, 255);
     }
 
-    // Second time flag passing
+    // Third time flag passing
     if ((rtc.getMinute() >= third_time_flag) && (!thirdTimeFlagPassed))
     {
       // Red color (0,255,255)
@@ -569,10 +543,6 @@ void loop()
       delay(ledTimeDuration * 1000);
       analogWrite(RledPin, 255);
     }
-
-    // first_time_interval = first_time_flag * 60 * 1000;
-    // second_time_interval = second_time_flag * 60 * 1000;
-    // third_time_interval = third_time_flag * 60 * 1000;
 
     display.clearDisplay();
     display.setCursor(0, 0);
@@ -703,22 +673,12 @@ void loop()
 
       // -----------------------------------------------------------------------------------------------
 
-      // if (firstTimeFlagPassed == true && secondTimeFlagPassed == true && thirdTimeFlagPassed == true)
-      // {
-      //   display.clearDisplay();
-      //   display.setCursor(0, 56);
-      //   display.print("Your speech time is over...");
-      //   delay(ledTimeDuration * 1000 * 2);
-      // }
     }
   }
   display.clearDisplay();
 }
 
-// String getFormattedStartTime()
-// {
 
-// }
 
 String getFormattedStartTime()
 {
@@ -733,72 +693,9 @@ String getFormattedStartTime()
 
 void updateOLEDStartTime()
 {
-  // display.clearDisplay();
+ 
   display.setCursor(32, 16);
-  // display.setTextSize(1);
   display.println(getFormattedStartTime());
   delay(10);
 
-  // display.display();
 }
-
-/* Algorithm *******************************************
-okButtonsCount = 0
-
-main loop():{
-
-if okButton.pressed():
-    okButtonsCount += 1
-
-if okButtonsCount %4 == 0:
-    print("You have pressed the OK button 4 times")
-    run the program for slides change
-
-    if rightButton.longPress detected:
-        start Laser
-    if leftButton.longPress detected:
-        Switch off Laser
-
-
-elif okButtonsCount %4 == 1:
-    doSomething() first timeChange
-
-elif okButtonsCount %4 == 2:
-    doSomething() second timeChange
-
-elif okButtonsCount %4 == 3:
-    doSomething() thirdTimeChange
-
-if okButtonLongPress detected:
-
-    start countdowning
-
-    run the program for slides change
-
-    if rightButton.longPress detected:
-        start Laser
-    if leftButton.longPress detected:
-        Switch off Laser
-
-}
-
-*/
-
-// TODO: slides change
-// TODO: change font type
-// TODO: Count down mode
-// TODO: Vibrator down
-// TODO: Lasor On off
-
-/*
-
-[] - count up
-[] - change timer to show in 30s
-[] - change font
-[] - try using both cores of CPU
-[] - add animation between speech mode, time change mode
-[] - vibrator motor on
-[] - laser on
-[] - slide change
-
-*/

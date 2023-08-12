@@ -1,83 +1,58 @@
-<<<<<<< HEAD
-# iCliq - EDP Project
-ble-mouse has the code to connect to a PC/phone and control using button
-button.h header should be in the same folder for code to work. (for button debounce)
-vibrator_pwm can be used to up the vibrator
+# iCliQ - EDP Project
 
-### Functionalities
+![iCliQ Logo](/Images/iCliQ_logo.png)
 
-- set the timer 
-- use bluetooth low energy
-- timing algorithm
-2.1 Screen Menu
-Operation view
-Configuration view (Time set)
-custom time frames
-pre defined custom time blocks
-Note card view
-2.2 Timing algorithm
-Predefined blocks 
-custom block 
-2.3 Vibration pattern algorithm
-on/off 
-2.4 Mobile App (MIT App Inventor)
-2.5 LED bulb
-2.6 Laser pointer
-=======
-# iCliq - EDP Project
-ble-mouse has the code to connect to a PC/phone and control using button
-button.h header should be in the same folder for code to work. (for button debounce)
-vibrator_pwm can be used to up the vibrator
+## Introduction 
 
-### Functionalities
+iCliQ is a wearable that helps public speakers, presenters to manage their time during presentation.
 
-- set the timer 
-- use bluetooth low energy
-- timing algorithm
-2.1 Screen Menu
-Operation view
-Configuration view (Time set)
-custom time frames
-pre defined custom time blocks
-Note card view
-2.2 Timing algorithm
-Predefined blocks 
-custom block 
-2.3 Vibration pattern algorithm
-on/off 
-2.4 Mobile App (MIT App Inventor)
-2.5 LED bulb
-2.6 Laser pointer
->>>>>>> d595b435e91ea428b4dfab799d4428956ef5e467
+Users can identify the time flags of their speech by vibration patterns and the color of the RGB light.
+
+We (_**Company of Noobs**_) built this product under the _Engineering Design Project_ module during the second semester. 
+
+## Functionalities
+
+- Presentation Mode
+    - Laser ON / OFF
+    - slides change
+- Time Flag Change Mode
+    - adjust time flags
+- Speech Mode
+    - Laser ON / OFF
+    - slides change
+    - 
+
+____
+
+## User Manual for iCliQ
+
+You can refer to the User Manual for more info. [User Manual - iCliQ](/Reports%20and%20Presentations/iCliQ_manual.pdf)
+
+
+![user_manual_page_1](/Images/iCliQ_manual/iCliQ_manual-1.jpg)
+![user_manual_page_2](/Images/iCliQ_manual/iCliQ_manual-1.jpg)
 
 
 ## Libraries Used
 
-Bluetooth Keyboard Library
-https://github.com/T-vK/ESP32-BLE-Keyboard
-https://github.com/T-vK/ESP32-BLE-Keyboard/releases/tag/0.3.0
+1. [Adafruit GFX](https://github.com/adafruit/Adafruit-GFX-Library.git) - a graphics library for Arduino and Arduino-compatible devices
 
-eZbutton.h
-https://github.com/ArduinoGetStarted/button
+2. [Adafruit SSD1306](https://github.com/adafruit/Adafruit_SSD1306) - drives OLED displays based on the SSD1306 driver chip
 
-### TODO : 
+3. [Wire.h](https://github.com/espressif/arduino-esp32/blob/master/libraries/Wire/src/Wire.h) - used for I2C communication. I2C (Inter-Integrated Circuit) is a communication protocol that allows multiple devices to communicate with each other using a two-wire interface, typically labeled as SDA (Serial Data Line) and SCL (Serial Clock Line).
 
-Presentation Mode : 
-    - laser Mode
-    - slide change
+4. [ESP32time](https://github.com/fbiego/ESP32Time) - An Arduino library for setting and retrieving internal RTC time on ESP32 boards
 
-Speech Mode 
-    - vibrator on 
-    - laser Mode
-    - slide change
+5. [ESP32 BLE Keyboard library](https://github.com/T-vK/ESP32-BLE-Keyboard) - allows you to make the ESP32 act as a Bluetooth Keyboard and control what it does.
 
-CountUp mode 
+6. [BLEDvice.h](https://github.com/espressif/arduino-esp32/blob/master/libraries/BLE/src/BLEDevice.h) - provides an API for working with Bluetooth Low Energy peripherals and central devices
 
-[] - count up
-[] - change timer to show in 30s
-[] - change font
-[] - try using both cores of CPU
-[] - add animation between speech mode, time change mode
-[] - vibrator motor on
-[] - laser on 
-[] - slide change 
+7. [ezButton Library for Arduino](https://github.com/ArduinoGetStarted/button) - make it easy to use push button, momentary switches, toggle switch, magnetic contact switch (door sensor)..​. 
+
+
+## Contributors of the Project
+
+- [Odil Janandith](https://lk.linkedin.com/in/odil-janandith-940a63166)
+- [Sasika Amarasinghe](https://lk.linkedin.com/in/sasika-amarasinghe)
+- [Sayuru Shenal Amugoda](https://lk.linkedin.com/in/sayuru-amugoda-289626276)
+- [Navindu De Silva](https://lk.linkedin.com/in/navindu-de-silva-6b0b7b219)

@@ -1,38 +1,88 @@
-okButtonsCount = 0
+/*
 
-main loop():{
+iCliQ - Company of Noobs 
 
-if okButton.pressed():
-    okButtonsCount += 1
+Developed by - Sasika Amarasinghe (https://github.com/SasikaA073)
 
-if okButtonsCount %4 == 0:
-    print("You have pressed the OK button 4 times")
-    run the program for slides change
+*/
 
-    if rightButton.longPress detected:
-        start Laser
-    if leftButton.longPress detected:
-        Switch off Laser
+okButtonsPressedCount = 0
+firstTimeFlag = 1
+secondTimeFlag = 2
+thirdTimeFlag = 3
+
+main loop() 
+
+    if okButton.pressed():
+        okButtonsPressedCount += 1
+
+    if okButtonsCount %5 == 0:
+        
+        run the program for slides change
+
+        if rightButton.longPress detected:
+            start Laser
+        if leftButton.longPress detected:
+            Switch off Laser
+        
+
+    elif okButtonsCount %5 == 0: 
+        - Presentation mode 
+
+        if rightButton.longPress detected:
+            on/off Laser
+
+        if rightButton.shortPress detected:
+            next slide
+
+        if leftButton.shortPress detected:
+            previous slide
+
+    elif okButtonsCount %5 == 1:
+        - First Time Flag change Mode 
+
+        if rightButton.shortPress detected:
+            firstTimeFlag += 1
+        if leftButton.shortPress detected:
+            firstTimeFlag -= 1
+        
+        
+    elif okButtonsCount %5 == 2:
+        - Second Time Flag change Mode
+
+        if rightButton.shortPress detected:
+            secondTimeFlag += 1
+        if leftButton.shortPress detected:
+            secondTimeFlag -= 1
+
+    elif okButtonsCount %5 == 3:
+        - Third Time Flag change Mode
+
+        if rightButton.shortPress detected:
+            thirdTimeFlag += 1
+        if leftButton.shortPress detected:
+            thirdTimeFlag -= 1
+
+    elif okButtonsCount %5 == 4:
+        - Speech mode
     
+        if rightButton.longPress detected:  
+            on/off Laser
+        
+        if rightButton.shortPress detected:
+            next slide
 
-elif okButtonsCount %4 == 1: 
-    doSomething() first timeChange
+        if leftButton.shortPress detected:
+            previous slide
 
-elif okButtonsCount %4 == 2: 
-    doSomething() second timeChange
+        if now_time > firstTimeFlag:
+            First Vibration
+            Green Light on for 10 seconds
 
-elif okButtonsCount %4 == 3: 
-    doSomething() thirdTimeChange
+        if now_time > secondTimeFlag:
+            Second Vibration
+            Yellow Light on for 10 seconds
 
-if okButtonLongPress detected:
-
-    start countdowning
-
-    run the program for slides change
-
-    if rightButton.longPress detected:
-        start Laser
-    if leftButton.longPress detected:
-        Switch off Laser
-
-}
+        if now_time > thirdTimeFlag:
+            Third Vibration
+            Red Light on for 10 seconds

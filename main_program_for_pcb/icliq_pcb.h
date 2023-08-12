@@ -1,3 +1,11 @@
+/*
+
+iCliQ - Company of Noobs 
+
+Developed by - Sasika Amarasinghe (https://github.com/SasikaA073)
+
+*/
+
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Wire.h>
@@ -17,23 +25,21 @@ const uint8_t batteryLevelPin = 17;
 const uint8_t vibratorPin = 16;
 const uint8_t laserPin = 18;
 
-
 // Uncomment the following for PCB
 const uint8_t rightButtonPin = 25;
 const uint8_t leftButtonPin = 27;
 const uint8_t okButtonPin = 26;
-const uint8_t touchUp = 32; 
+const uint8_t touchUp = 32;
 const uint8_t touchDown = 33;
 
 // // Uncomment the following for Magicbit
-// const uint8_t rightButtonPin = 32; 
+// const uint8_t rightButtonPin = 32;
 // const uint8_t leftButtonPin = 34;
 // const uint8_t okButtonPin = 35;
-// const uint8_t touchUp = 22; 
+// const uint8_t touchUp = 22;
 // const uint8_t touchDown = 23;
 
-ESP32Time rtc(3600);  // offset in seconds GMT+1
-
+ESP32Time rtc(3600); // offset in seconds GMT+1
 
 // Config for vibrator Motor
 int dutyCycle;
@@ -42,7 +48,6 @@ const int PWMFreq = 5000; /* 5 KHz */
 const int PWMChannel = 0;
 const int PWMResolution = 10;
 const int MAX_DUTY_CYCLE = (int)(pow(2, PWMResolution) - 1);
-
 
 unsigned long okButton_pressedTime = 0;
 unsigned long okButton_releasedTime = 0;
@@ -59,7 +64,6 @@ unsigned long leftButton_releasedTime = 0;
 bool is_leftButton_Pressing = false;
 bool is_leftButton_LongDetected = false;
 
-
 const int SHORT_PRESS_TIME = 1000; // 1000 milliseconds
 const int LONG_PRESS_TIME = 1000;  // 1000 milliseconds
 
@@ -67,7 +71,7 @@ const int LONG_PRESS_TIME = 1000;  // 1000 milliseconds
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
-// TODO: function to display the battery percentage
+// function to display the battery percentage
 void displayBatteryPercentage(uint8_t batteryLevelPin)
 {
     // Change the battery_level data type to unit8_t if necessary
@@ -76,10 +80,6 @@ void displayBatteryPercentage(uint8_t batteryLevelPin)
 
     // Print the text starting from the top-left corner (0,0)
     display.clearDisplay();
-
-    // delete the below line ***************************************************************************IJLJIOOUOIOIUOIOIIO
-    // battery_percentage = 78.0;
-    battery_percentage = 73.0;
 
     if (battery_percentage <= 25.0)
     {
@@ -111,12 +111,9 @@ void displayBatteryPercentage(uint8_t batteryLevelPin)
     Serial.println(" %");
 
     delay(2000);
-    // display.clearDisplay();
     Serial.println("# Battery Percentage Dispalyed.");
-    // display.display();
     delay(10);
 }
-
 
 // function to display the triangle
 void displayArrowKey(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t x3, uint8_t y3, bool up)
@@ -142,10 +139,7 @@ void changeRGBcolor(uint8_t r_value, uint8_t g_value, uint8_t b_value, int time_
     delay(time_delay);
 }
 
-
-
-
-// functions for animations 
+// functions for animations
 
 // A function to keep one loop of android_loading the GIF going
 void animate_android_loading()
@@ -179,70 +173,42 @@ void animate_hexagon_loading()
 
 String getFormattedTime()
 {
-  
-  int minutes = rtc.getMinute();
-int seconds = rtc.getSecond();
-  
-  
-  return String(minutes) + " : " + String(seconds) ;
+
+    int minutes = rtc.getMinute();
+    int seconds = rtc.getSecond();
+
+    return String(minutes) + " : " + String(seconds);
 }
 
 // Funtion to update the OLED according to the time
 void updateOLED()
 {
-  // display.clearDisplay();
-  display.setCursor(32, 16);
-  display.setTextSize(2);
-  display.println(getFormattedTime());
-  delay(10);
-  // display.display();
+    // display.clearDisplay();
+    display.setCursor(32, 16);
+    display.setTextSize(2);
+    display.println(getFormattedTime());
+    delay(10);
+    // display.display();
 }
 
-// String getFormattedStartTime()
-// {
-//     unsigned long minutes = ((millis() - start_time / 1000)) / 60;
-//   unsigned int seconds = ((millis() - start_time) / 1000) % 60;
-  
-//   return String(minutes) + " : " + String(seconds) ;
-// }
-
-// void updateOLEDStartTime()
-// {
-//     // display.clearDisplay();
-//   display.setCursor(32, 16);
-//   display.setTextSize(2);
-//   display.println(getFormattedTime());
-//   delay(10);
-//   // display.display();
-// }
-
-
-void runVibratorMotor(){
-//     /* Increasing the LED brightness with PWM */
-//   for(dutyCycle = 0; dutyCycle <= MAX_DUTY_CYCLE; dutyCycle++)
-//   {
-//     ledcWrite(PWMChannel, dutyCycle);
-//     delay(3);
-//     //delayMicroseconds(100);
-//   }
-//       /* Decreasing the LED brightness with PWM */
-//   for(dutyCycle = MAX_DUTY_CYCLE; dutyCycle >= 0; dutyCycle--)
-//   {
-//     ledcWrite(PWMChannel, dutyCycle);
-//     delay(3);
-    //delayMicroseconds(100);
-    digitalWrite(vibratorPin, HIGH);
-    delay(2000);
-    digitalWrite(vibratorPin, LOW);
-  }
-
-
-void blinkRedLED(){
-    analogWrite(RledPin,0);
-    delay(500);
-    analogWrite(RledPin, 128);
-    delay(500);
-    analogWrite(RledPin, 255);
-    delay(500);
-    
+void runVibratorMotor()
+{
+    /* Increasing the LED brightness with PWM */
+    for (dutyCycle = 0; dutyCycle <= MAX_DUTY_CYCLE; dutyCycle++)
+    {
+        ledcWrite(PWMChannel, dutyCycle);
+        delay(3);
+        // delayMicroseconds(100);
+    }
+    /* Decreasing the LED brightness with PWM */
+    for (dutyCycle = MAX_DUTY_CYCLE; dutyCycle >= 0; dutyCycle--)
+    {
+        ledcWrite(PWMChannel, dutyCycle);
+        delay(3);
+        delayMicroseconds(100);
+        // digitalWrite(vibratorPin, HIGH);
+        // delay(2000);
+        // digitalWrite(vibratorPin, LOW);
+    }
 }
+
