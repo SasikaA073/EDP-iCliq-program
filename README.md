@@ -20,7 +20,7 @@ We (_**Company of Noobs**_) built this product under the _Engineering Design Pro
 - Speech Mode
     - Laser ON / OFF
     - slides change
-    - 
+    - Illuminating LED/vibration patterns in specific time flags
 
 ____
 
