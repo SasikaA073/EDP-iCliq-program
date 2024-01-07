@@ -8,10 +8,16 @@ Developed by - Sasika Amarasinghe (https://github.com/SasikaA073)
 
 #include "icliq_pcb.h"
 #include "ezButton.h"
+#include "dualcore_tasks.h"
 #include <BleKeyboard.h>
 #include <BLEDevice.h>
 
 BleKeyboard bleKeyboard;
+
+// Tasks for parallel processing
+TaskHandle_t green_led_handler;
+TaskHandle_t red_led_handler;
+TaskHandle_t yellow_led_handler;
 
 // ESP32Time rtc;
 // ESP32Time rtc(3600); // offset in seconds GMT+1
@@ -51,6 +57,10 @@ unsigned long previousMillis = 0;
 int okButtonPressedCount = 0;
 
 long start_time;
+
+GreenColorParameters greenColorParams = {GledPin, ledTimeDuration};
+YellowColorParameters yellowColorParams = {GledPin, RledPin, ledTimeDuration};
+RedColorParameters redColorParams = {RledPin, ledTimeDuration};
 
 void setup()
 {
@@ -186,17 +196,15 @@ void loop()
     else if ((okButtonPressedCount % 5) == 2)
     {
       Serial.println("\n# Time change Mode : flag 2 ");
-     
     }
     else if ((okButtonPressedCount % 5) == 3)
     {
       Serial.println("\n# Time change Mode : flag 3 ");
-      
     }
     else if ((okButtonPressedCount % 5) == 4)
     {
       Serial.println("\n# Speech Mode ");
-    
+
       // Reset the RTC clock
       start_time = rtc.getMillis();
       rtc.setTime(0, 0, 0, 5, 8, 2024);
@@ -222,7 +230,7 @@ void loop()
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------------------------------------
-  
+
   // ----- Code for mode change ...
 
   if ((okButtonPressedCount % 5) == 0)
@@ -282,7 +290,6 @@ void loop()
 
         runVibratorMotor();
         Serial.println("presentation mode - Vibrator motor working!");
-        
       }
     }
 
@@ -351,8 +358,6 @@ void loop()
         Serial.println(isLaserOn);
       }
     }
-
-   
   }
 
   // First time flag change mode
@@ -396,16 +401,14 @@ void loop()
         first_time_flag -= 1;
         // changeRGBcolor(127,0,0,500);
       }
-       
     }
     if (rightButton.isPressed())
     {
       Serial.println("right Button Pressed! - first time flag Mode On");
       if (first_time_flag < UPPER_TIME_LIMIT)
       {
-         
+
         first_time_flag += 1;
-         
       }
     }
   }
@@ -443,18 +446,15 @@ void loop()
       if (second_time_flag > 0)
       {
         second_time_flag -= 1;
-       
       }
-      
     }
     if (rightButton.isPressed())
     {
       Serial.println("right Button Pressed! - second time flag Mode On");
       if (second_time_flag < UPPER_TIME_LIMIT)
       {
-         
+
         second_time_flag += 1;
-         
       }
     }
   }
@@ -489,16 +489,14 @@ void loop()
         third_time_flag -= 1;
         // changeRGBcolor(127,0,0,500);
       }
-       
     }
     if (rightButton.isPressed())
     {
       Serial.println("right Button Pressed! - third time flag Mode On");
       if (third_time_flag < UPPER_TIME_LIMIT)
       {
-         
+
         third_time_flag += 1;
-         
       }
     }
   }
@@ -507,41 +505,66 @@ void loop()
   else if ((okButtonPressedCount % 5) == 4)
   {
 
- 
     if ((rtc.getMinute() == first_time_flag) && (!firstTimeFlagPassed))
-   
+
     {
-      // Green color (255,0,255)
-      analogWrite(GledPin, 0);
+
+      
 
       Serial.println("First time flag passed");
       firstTimeFlagPassed = true;
-      delay(ledTimeDuration * 1000);
-      analogWrite(GledPin, 255);
+
+      xTaskCreatePinnedToCore(
+          handleGreenLed,      // Task function
+          "Green LED Handler", // Name of the task
+          10000,               // Stack size of the task
+          &greenColorParams,   // Parameter of the task (passing the structure)
+          1,                   // Priority of the task
+          &green_led_handler,  // Task handle to keep track of created task
+          0                    // Pin task to core 0
+      );
     }
 
     // Second time flag passing
     if ((rtc.getMinute() == second_time_flag) && (!secondTimeFlagPassed))
     {
-      // Yellow color (0,0,255)
-      analogWrite(RledPin, 0);
-      analogWrite(GledPin, 128);
+
+      
+
       Serial.println("Second time flag passed");
       secondTimeFlagPassed = true;
-      delay(ledTimeDuration * 1000);
-      analogWrite(RledPin, 255);
-      analogWrite(GledPin, 255);
+      
+
+      xTaskCreatePinnedToCore(
+          handleYellowLed,      // Task function
+          "Yellow LED Handler", // Name of the task
+          10000,               // Stack size of the task
+          &yellowColorParams,   // Parameter of the task (passing the structure)
+          1,                   // Priority of the task
+          &yellow_led_handler,  // Task handle to keep track of created task
+          0                    // Pin task to core 0
+      );
     }
 
     // Third time flag passing
     if ((rtc.getMinute() >= third_time_flag) && (!thirdTimeFlagPassed))
     {
-      // Red color (0,255,255)
-      analogWrite(RledPin, 0);
+
+      
+      
       Serial.println("Third time flag passed");
       thirdTimeFlagPassed = true;
-      delay(ledTimeDuration * 1000);
-      analogWrite(RledPin, 255);
+      
+
+      xTaskCreatePinnedToCore(
+          handleRedLed,      // Task function
+          "Red LED Handler", // Name of the task
+          10000,               // Stack size of the task
+          &redColorParams,   // Parameter of the task (passing the structure)
+          1,                   // Priority of the task
+          &red_led_handler,  // Task handle to keep track of created task
+          0                    // Pin task to core 0
+      );
     }
 
     display.clearDisplay();
@@ -672,13 +695,10 @@ void loop()
       }
 
       // -----------------------------------------------------------------------------------------------
-
     }
   }
   display.clearDisplay();
 }
-
-
 
 String getFormattedStartTime()
 {
@@ -693,9 +713,8 @@ String getFormattedStartTime()
 
 void updateOLEDStartTime()
 {
- 
+
   display.setCursor(32, 16);
   display.println(getFormattedStartTime());
   delay(10);
-
 }
